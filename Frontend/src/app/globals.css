@@ -1,0 +1,31 @@
+/* src/app/globals.css */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* ใช้ min-height เพื่อให้สีครอบคลุมทั้งหน้าจอแม้เนื้อหาน้อย */
+  min-height: 100vh; 
+}
+
+body {
+  /* ใส่ !important เพื่อบังคับให้สีเปลี่ยนแน่นอน */
+  background: linear-gradient(180deg, #E2D1F9 0%, #F69D9D 100%) !important;
+  background-attachment: fixed; /* ล็อกพื้นหลังไม่ให้เลื่อนตามการ Scroll */
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+.error-input {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
