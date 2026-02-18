@@ -131,7 +131,7 @@ export default function LoginPage() {
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#6b7280' }}>
               <input type="checkbox" style={{ accentColor: '#F87171' }} /> จดจำฉันไว้
             </label>
-            <span style={{ fontSize: '0.85rem', color: '#F87171', fontWeight: '600', cursor: 'pointer' }}>ลืมรหัสผ่าน?</span>
+            <span onClick={() => router.push('/forgot-password')} style={{ fontSize: '0.85rem', color: '#F87171', fontWeight: '600', cursor: 'pointer' }}>ลืมรหัสผ่าน?</span>
           </div>
 
           <button type="submit" className="btn-hover" style={{ ...submitButtonStyle, background: 'linear-gradient(135deg, #FCA5A5, #F87171)', marginTop: '20px' }}>เข้าสู่ระบบ</button>
