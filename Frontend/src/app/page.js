@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 
 // --- DATA SECTION ---
 const moods = [
-  { id: 'happy', name: 'สดใส', emoji: '😊', color: '#FEF3C7', keywords: ['ดีใจ', 'แฮปปี้', 'ถูกหวย', 'ชนะ', 'สนุก'] },
+  { id: 'happy', name: 'สดใส', emoji: '😊', color: '#FEF3C7', keywords: ['ดีใจ', 'แฮปปี้', 'ถูกหวย', 'ชนะ', 'สนุก', `ร่าเริง`] },
   { id: 'angry', name: 'หัวร้อน', emoji: '🔥', color: '#FEE2E2', keywords: ['โมโห', 'หงุดหงิด', 'รถติด', 'ร้อน', 'โกรธ'] },
   { id: 'bored', name: 'เบื่อๆ', emoji: '😴', color: '#F3F4F6', keywords: ['เซ็ง', 'ขี้เกียจ', 'ว่าง', 'ไม่มีไรทำ'] },
   { id: 'lonely', name: 'เหงา', emoji: '💜', color: '#F5F3FF', keywords: ['คนเดียว', 'คิดถึง', 'โสด', 'ไม่มีใครคุย'] },
