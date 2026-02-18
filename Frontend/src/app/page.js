@@ -15,19 +15,19 @@ const moods = [
 
 const allLocations = {
   introvert: {
-    green: [ { id: 'in_g1', name: 'Forest Walkway', info: 'เส้นทางศึกษาธรรมชาติ เดินเงียบๆ ฟังเสียงนก ชมไม้', img: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80', dist: '5.5 กม.', rating: '4.7' } ],
-    water: [ { id: 'in_w1', name: 'Hidden Lake Pier', info: 'ท่าเรือริมทะเลสาบลับๆ ลมเย็นสบาย ไม่มีคนรบกวน', img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80', dist: '7.1 กม.', rating: '4.9' } ],
-    cafe: [ { id: 'in_c1', name: 'Common Room Library', info: 'ห้องสมุดคาเฟ่สุดเงียบ จิบกาแฟอ่านหนังสือได้ยาวๆ', img: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80', dist: '1.2 กม.', rating: '4.9' } ]
+    green: [{ id: 'in_g1', name: 'Forest Walkway', info: 'เส้นทางศึกษาธรรมชาติ เดินเงียบๆ ฟังเสียงนก ชมไม้', img: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80', dist: '5.5 กม.', rating: '4.7' }],
+    water: [{ id: 'in_w1', name: 'Hidden Lake Pier', info: 'ท่าเรือริมทะเลสาบลับๆ ลมเย็นสบาย ไม่มีคนรบกวน', img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80', dist: '7.1 กม.', rating: '4.9' }],
+    cafe: [{ id: 'in_c1', name: 'Common Room Library', info: 'ห้องสมุดคาเฟ่สุดเงียบ จิบกาแฟอ่านหนังสือได้ยาวๆ', img: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80', dist: '1.2 กม.', rating: '4.9' }]
   },
   extrovert: {
-    green: [ { id: 'ex_g1', name: 'Zood Music Festival Park', info: 'สวนสาธารณะที่มีดนตรีสดและกิจกรรมกลุ่ม คึกคักสุดๆ', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80', dist: '4.0 กม.', rating: '4.6' } ],
-    water: [ { id: 'ex_w1', name: 'Splash Water Park', info: 'สวนน้ำใจกลางเมือง สนุกสุดเหวี่ยงกับแก๊งเพื่อน', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80', dist: '8.5 กม.', rating: '4.8' } ],
-    cafe: [ { id: 'ex_c1', name: 'Party Cafe & Bar', info: 'คาเฟ่ที่มีบอร์ดเกมและเพลงดัง เหมาะกับการนัดรวมตัว', img: 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?q=80', dist: '2.1 กม.', rating: '4.5' } ]
+    green: [{ id: 'ex_g1', name: 'Zood Music Festival Park', info: 'สวนสาธารณะที่มีดนตรีสดและกิจกรรมกลุ่ม คึกคักสุดๆ', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80', dist: '4.0 กม.', rating: '4.6' }],
+    water: [{ id: 'ex_w1', name: 'Splash Water Park', info: 'สวนน้ำใจกลางเมือง สนุกสุดเหวี่ยงกับแก๊งเพื่อน', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80', dist: '8.5 กม.', rating: '4.8' }],
+    cafe: [{ id: 'ex_c1', name: 'Party Cafe & Bar', info: 'คาเฟ่ที่มีบอร์ดเกมและเพลงดัง เหมาะกับการนัดรวมตัว', img: 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?q=80', dist: '2.1 กม.', rating: '4.5' }]
   },
   ambivert: {
-    green: [ { id: 'am_g1', name: 'Art in the Park', info: 'สวนศิลปะ มีคนบ้างแต่ไม่วุ่นวาย เดินดูงานอาร์ตเพลินๆ', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80', dist: '1.5 กม.', rating: '4.8' } ],
-    water: [ { id: 'am_w1', name: 'Canal Walking Street', info: 'ทางเดินริมคลองที่มีร้านค้าเล็กๆ บรรยากาศกำลังดี', img: 'https://images.unsplash.com/photo-1533167649158-6d508895b980?q=80', dist: '2.8 กม.', rating: '4.4' } ],
-    cafe: [ { id: 'am_c1', name: 'Workshop Cafe', info: 'คาเฟ่ที่มีกิจกรรมให้ทำร่วมกับคนอื่นแต่ก็มีมุมส่วนตัว', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80', dist: '3.0 กม.', rating: '4.7' } ]
+    green: [{ id: 'am_g1', name: 'Art in the Park', info: 'สวนศิลปะ มีคนบ้างแต่ไม่วุ่นวาย เดินดูงานอาร์ตเพลินๆ', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80', dist: '1.5 กม.', rating: '4.8' }],
+    water: [{ id: 'am_w1', name: 'Canal Walking Street', info: 'ทางเดินริมคลองที่มีร้านค้าเล็กๆ บรรยากาศกำลังดี', img: 'https://images.unsplash.com/photo-1533167649158-6d508895b980?q=80', dist: '2.8 กม.', rating: '4.4' }],
+    cafe: [{ id: 'am_c1', name: 'Workshop Cafe', info: 'คาเฟ่ที่มีกิจกรรมให้ทำร่วมกับคนอื่นแต่ก็มีมุมส่วนตัว', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80', dist: '3.0 กม.', rating: '4.7' }]
   }
 };
 
@@ -42,7 +42,7 @@ export default function HomePage() {
     const input = searchTerm.trim().toLowerCase();
     if (!input) return;
 
-    const detectedMood = moods.find(m => 
+    const detectedMood = moods.find(m =>
       m.keywords.some(kw => input.includes(kw)) || input.includes(m.name.toLowerCase())
     );
 
@@ -147,10 +147,10 @@ export default function HomePage() {
   return (
     <main className="main-container">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap');
+
         
         /* Global & Layout */
-        .main-container { padding: 100px 20px; font-family: 'Anuphan', sans-serif; background: #F8F9FF; min-height: 100vh; }
+        .main-container { padding: 100px 20px; background: #F8F9FF; min-height: 100vh; }
         .hero-section { text-align: center; margin-bottom: 60px; }
         .hero-title { font-size: 3.5rem; font-weight: 800; color: #1E1B4B; margin-bottom: 15px; letter-spacing: -1px; }
         .hero-subtitle { color: #6B7280; font-size: 1.1rem; }
@@ -158,7 +158,7 @@ export default function HomePage() {
         /* Search Bar (HCI: Prominence & Clarity) */
         .search-wrapper { max-width: 650px; margin: 40px auto; display: flex; gap: 10px; background: white; padding: 12px; border-radius: 100px; box-shadow: 0 20px 40px rgba(30,27,75,0.05); border: 2px solid #EEF2FF; transition: 0.3s; }
         .search-wrapper:focus-within { border-color: #6366F1; box-shadow: 0 20px 40px rgba(99,102,241,0.1); }
-        .search-input { flex: 1; border: none; padding: 10px 25px; outline: none; font-size: 1.1rem; border-radius: 100px; font-family: 'Anuphan'; }
+        .search-input { flex: 1; border: none; padding: 10px 25px; outline: none; font-size: 1.1rem; border-radius: 100px; }
         .search-btn { background: #1E1B4B; color: white; border: none; padding: 0 35px; border-radius: 100px; cursor: pointer; font-weight: 700; transition: 0.3s; }
         .search-btn:hover { background: #312E81; transform: scale(1.05); }
 
@@ -193,17 +193,17 @@ export default function HomePage() {
       </div>
 
       <div className="search-wrapper">
-        <input 
-          type="text" 
-          className="search-input" 
-          placeholder="บอกเล่าเรื่องราวของคุณที่นี่..." 
+        <input
+          type="text"
+          className="search-input"
+          placeholder="บอกเล่าเรื่องราวของคุณที่นี่..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleProcessSearch()}
         />
         <button className="search-btn" onClick={handleProcessSearch}>ค้นหา</button>
       </div>
-      
+
       <div className="mood-grid">
         {moods.map(m => (
           <div key={m.id} className="mood-card" onClick={() => startSearch(m)}>

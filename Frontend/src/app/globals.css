@@ -8,6 +8,10 @@ html, body {
   min-height: 100vh; 
 }
 
+* {
+  font-family: inherit;
+}
+
 body {
   /* ใส่ !important เพื่อบังคับให้สีเปลี่ยนแน่นอน */
   background: linear-gradient(180deg, #E2D1F9 0%, #F69D9D 100%) !important;
