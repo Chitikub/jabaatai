@@ -123,7 +123,7 @@ export default function LoginPage() {
             <label style={labelStyle}>Password</label>
             <div className="input-focus" style={inputContainerStyle}>
               <span style={{ color: '#9ca3af', marginRight: '10px' }}>🔒</span>
-              <input type="password" style={inputFieldStyle} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <input type="password" style={{ ...inputFieldStyle, fontFamily: 'sans-serif' }} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
           </div>
 

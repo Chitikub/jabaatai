@@ -296,7 +296,7 @@ export default function SignupPage() {
             <label style={labelStyle}>Password</label>
             <div className="input-focus" style={{ ...inputContainerStyle, borderColor: errors.password ? '#EF4444' : '#f1f5f9' }}>
               <span style={{ marginRight: '10px' }}>🔒</span>
-              <input name="password" value={formData.password} onChange={handleChange} type="password" style={inputFieldStyle} placeholder="••••••••" required />
+              <input name="password" value={formData.password} onChange={handleChange} type="password" style={{ ...inputFieldStyle, fontFamily: 'sans-serif' }} placeholder="••••••••" required />
             </div>
             {errors.password && <span style={{ color: '#EF4444', fontSize: '0.75rem', marginTop: '4px', marginLeft: '4px' }}>{errors.password}</span>}
           </div>
