@@ -5,10 +5,10 @@ const connectDB = require('./config/db');
 const User = require('./models/User');
 
 const app = express();
-connectDB(); 
+connectDB();
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); 
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // --- API สำหรับสมัครสมาชิก (Sign Up) ---
@@ -28,10 +28,10 @@ app.post('/api/signup', async (req, res) => {
     }
 
     const newUser = new User({ firstName, lastName, email, password, gender });
-    
+
     // บรรทัดนี้จะไปเรียก middleware ใน User.js ที่เราเพิ่งแก้ไป
     await newUser.save();
-    
+
     res.status(201).json({ message: 'ลงทะเบียนสำเร็จ! 🎉' });
   } catch (err) {
     console.error("Signup Error Details:", err);
@@ -45,16 +45,16 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (user && await user.comparePassword(password)) {
-      res.status(200).json({ 
-        message: 'เข้าสู่ระบบสำเร็จ! 🔑', 
-        user: { 
+      res.status(200).json({
+        message: 'เข้าสู่ระบบสำเร็จ! 🔑',
+        user: {
           id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
           gender: user.gender,
           profileImage: user.profileImage || ''
-        } 
+        }
       });
     } else {
       res.status(401).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
@@ -67,7 +67,7 @@ app.post('/api/login', async (req, res) => {
 // --- API สำหรับดึงข้อมูลโปรไฟล์ ---
 app.get('/api/profile/:id', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password'); 
+    const user = await User.findById(req.params.id).select('-password');
     if (!user) return res.status(404).json({ error: 'ไม่พบผู้ใช้ในระบบ' });
     res.status(200).json(user);
   } catch (err) {
@@ -93,4 +93,8 @@ app.put('/api/profile/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:5000 `) );
+
+app.get("/", (req, res) => {
+  res.send("<h1>Hello World! Server Mood Location Finder</h1>");
+}) 
