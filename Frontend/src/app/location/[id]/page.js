@@ -68,9 +68,35 @@ export default function LocationDetailPage() {
   };
 
   // ฟังก์ชันสำหรับการนำทาง
-  const handleNavigation = () => {
+  const handleNavigation = async () => {
     if (!location) return;
-    // สร้าง Google Maps URL โดยใช้ชื่อสถานที่ในการค้นหา
+
+    // 1. บันทึกประวัติลงฐานข้อมูล
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      const now = new Date();
+
+      try {
+        await fetch('http://localhost:5000/api/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id || user._id, // รองรับทั้ง id และ _id
+            locationId: location.id,
+            name: location.name,
+            type: location.type,
+            date: now.toISOString().split('T')[0], // YYYY-MM-DD
+            time: now.toTimeString().split(' ')[0].slice(0, 5) // HH:mm
+          })
+        });
+      } catch (err) {
+        console.error("Failed to save history:", err);
+        // ถึงจะ save ไม่ได้ ก็ยังให้นำทางต่อได้
+      }
+    }
+
+    // 2. สร้าง Google Maps URL โดยใช้ชื่อสถานที่ในการค้นหา
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.name + " " + location.address)}`;
     window.open(mapUrl, "_blank");
   };

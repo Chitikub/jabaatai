@@ -10,19 +10,36 @@ function HistoryContent() {
   const [timeFilter, setTimeFilter] = useState('all');
 
   // ข้อมูลสถานที่ (Locations Data)
-  const [locations, setLocations] = useState([
-    { id: 1, name: 'ปะปานคร นครปฐม', date: '2026-02-17', time: '14:30', type: 'forest', isFavorite: false },
-    { id: 2, name: 'สวนเบญจกิติ', date: '2026-02-10', time: '17:45', type: 'forest', isFavorite: true },
-    { id: 3, name: 'เกาะล้าน', date: '2026-01-15', time: '09:15', type: 'sea', isFavorite: false },
-    { id: 4, name: 'หัวหิน', date: '2025-06-20', time: '11:00', type: 'sea', isFavorite: true },
-    { id: 5, name: 'สวนหลวง ร.9', date: '2024-10-10', time: '16:20', type: 'forest', isFavorite: false },
-  ]);
+  const [locations, setLocations] = useState([]); // เริ่มต้นเป็น array ว่าง สำหรับ user ใหม่ที่ยังไม่มีประวัติ
 
   useEffect(() => {
-    // ดึงข้อมูลผู้ใช้จาก LocalStorage
-    const savedUser = localStorage.getItem('user_profile') || localStorage.getItem('user');
+    // 1. ดึงข้อมูล User
+    const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+
+      // 2. ดึงประวัติการค้นหาจาก API
+      fetch(`http://localhost:5000/api/history/${userData.id || userData._id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            // ดึงข้อมูล Favorites จาก LocalStorage มาเปรียบเทียบ
+            const savedFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const favIds = new Set(savedFavs.map(f => f.id));
+
+            // Merge ข้อมูล: ถ้า locationId ตรงกับใน favorites ให้ isFavorite = true
+            const mergedData = data.map(item => ({
+              ...item,
+              id: item.locationId, // Map locationId กลับเป็น id เพื่อให้ component ทำงานต่อได้
+              isFavorite: favIds.has(item.locationId)
+            }));
+
+            setLocations(mergedData);
+          }
+        })
+        .catch(err => console.error("Error fetching history:", err));
+
     } else {
       router.push('/login');
     }
@@ -31,7 +48,7 @@ function HistoryContent() {
   // ฟังก์ชัน Toggle Favorite
   const toggleFavorite = (id) => {
     setLocations(prev => {
-      const updated = prev.map(loc => 
+      const updated = prev.map(loc =>
         loc.id === id ? { ...loc, isFavorite: !loc.isFavorite } : loc
       );
       // อัปเดตลง LocalStorage เพื่อให้หน้า Favorites และ Navbar รับรู้
@@ -39,7 +56,7 @@ function HistoryContent() {
       localStorage.setItem('favorites', JSON.stringify(favoritesOnly));
       return updated;
     });
-    
+
     // ส่ง Event แจ้งเตือน Navbar
     window.dispatchEvent(new Event('favoriteUpdate'));
     window.dispatchEvent(new Event('storage'));
@@ -80,28 +97,28 @@ function HistoryContent() {
         {/* Sidebar: ส่วนข้อมูลผู้ใช้และตัวกรอง */}
         <aside style={sidebar}>
           <div style={userSection}>
-            <img 
-              src={user.profileImage || '/avatar-placeholder.png'} 
-              style={avatarStyle} 
-              alt="User" 
+            <img
+              src={user.profileImage || '/avatar-placeholder.png'}
+              style={avatarStyle}
+              alt="User"
               onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"; }}
             />
             <h3 style={userName}>{user.firstName}</h3>
             <p style={userEmail}>{user.email}</p>
           </div>
-          
+
           <div style={filterGroup}>
-             <label style={labelStyle}><Clock size={16}/> ช่วงเวลา</label>
-             <select 
-                value={timeFilter} 
-                onChange={(e) => setTimeFilter(e.target.value)} 
-                style={selectStyle}
-             >
-                <option value="all">ทั้งหมดที่ผ่านมา</option>
-                <option value="today">เฉพาะวันนี้</option>
-                <option value="last_week">7 วันที่ผ่านมา</option>
-                <option value="last_month">30 วันที่ผ่านมา</option>
-             </select>
+            <label style={labelStyle}><Clock size={16} /> ช่วงเวลา</label>
+            <select
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="all">ทั้งหมดที่ผ่านมา</option>
+              <option value="today">เฉพาะวันนี้</option>
+              <option value="last_week">7 วันที่ผ่านมา</option>
+              <option value="last_month">30 วันที่ผ่านมา</option>
+            </select>
           </div>
         </aside>
 
@@ -114,8 +131,8 @@ function HistoryContent() {
           </div>
 
           <div style={listHeader}>
-             <h2 style={titleStyle}>ประวัติการค้นหา</h2>
-             <span style={countTag}>{filteredData.length} รายการ</span>
+            <h2 style={titleStyle}>ประวัติการค้นหา</h2>
+            <span style={countTag}>{filteredData.length} รายการ</span>
           </div>
 
           <div style={listScroll}>
@@ -128,21 +145,21 @@ function HistoryContent() {
                   <div>
                     <h4 style={nameStyle}>{item.name}</h4>
                     <div style={metaFlex}>
-                      <span style={subStyle}><Calendar size={12}/> {item.date}</span>
-                      <span style={subStyle}><Clock size={12}/> {item.time} น.</span>
+                      <span style={subStyle}><Calendar size={12} /> {item.date}</span>
+                      <span style={subStyle}><Clock size={12} /> {item.time} น.</span>
                     </div>
                   </div>
                 </div>
-                
+
                 <div style={flexCenter}>
-                  <button 
-                    style={favBtn} 
+                  <button
+                    style={favBtn}
                     onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); }}
                   >
-                    <Heart 
-                      size={20} 
-                      fill={item.isFavorite ? "#EF4444" : "none"} 
-                      color={item.isFavorite ? "#EF4444" : "#CBD5E1"} 
+                    <Heart
+                      size={20}
+                      fill={item.isFavorite ? "#EF4444" : "none"}
+                      color={item.isFavorite ? "#EF4444" : "#CBD5E1"}
                     />
                   </button>
                   <ChevronRight size={18} color="#CBD5E1" style={{ marginLeft: '10px' }} />

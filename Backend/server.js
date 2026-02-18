@@ -92,9 +92,53 @@ app.put('/api/profile/:id', async (req, res) => {
   }
 });
 
+const History = require('./models/History');
+
+// ... (existing code)
+
+// --- API สำหรับประวัติการนำทาง (History) ---
+// 1. บันทึกประวัติ
+app.post('/api/history', async (req, res) => {
+  try {
+    const { userId, locationId, name, type, date, time } = req.body;
+
+    if (!userId || !locationId || !name) {
+      return res.status(400).json({ error: 'ข้อมูลไม่ครบถ้วน' });
+    }
+
+    const newHistory = new History({
+      userId,
+      locationId,
+      name,
+      type: type || 'forest', // Default fallback
+      date,
+      time
+    });
+
+    await newHistory.save();
+    res.status(201).json({ message: 'บันทึกประวัติเรียบร้อย', data: newHistory });
+
+  } catch (err) {
+    console.error("Save History Error:", err);
+    res.status(500).json({ error: 'บันทึกประวัติล้มเหลว' });
+  }
+});
+
+// 2. ดึงประวัติของ User
+app.get('/api/history/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const history = await History.find({ userId }).sort({ timestamp: -1 }); // เรียงจากล่าสุดไปเก่าสุด
+    res.status(200).json(history);
+  } catch (err) {
+    console.error("Get History Error:", err);
+    res.status(500).json({ error: 'ดึงข้อมูลประวัติล้มเหลว' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:5000 `) );
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:5000 `));
 
 app.get("/", (req, res) => {
   res.send("<h1>Hello World! Server Mood Location Finder</h1>");
-}) 
+}); 
