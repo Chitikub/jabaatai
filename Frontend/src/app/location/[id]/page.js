@@ -66,24 +66,50 @@ export default function LocationDetailPage() {
 
       <div style={layoutContainer}>
         <div style={backContainer}>
-          <button onClick={() => router.back()} className="action-btn" style={backBtnStyle}>
+          <button
+            onClick={() => router.back()}
+            className="action-btn"
+            style={backBtnStyle}
+          >
             <ArrowLeft size={20} /> ย้อนกลับ
           </button>
         </div>
 
         <div style={detailCardStyle}>
-          <div style={{ position: 'relative', height: '350px', display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '10px', padding: '12px' }}>
+          <div
+            style={{
+              position: "relative",
+              height: "350px",
+              display: "grid",
+              gridTemplateColumns: "1.8fr 1fr",
+              gap: "10px",
+              padding: "12px",
+            }}
+          >
             {/* ปุ่มกดใจ */}
-            <button 
-              style={{...favBtnInside, color: isFavorite ? "#EF4444" : "#1E1B4B"}} 
-              onClick={toggleFavorite} 
+            <button
+              style={{
+                ...favBtnInside,
+                color: isFavorite ? "#EF4444" : "#1E1B4B",
+              }}
+              onClick={toggleFavorite}
               className="action-btn"
             >
               <Heart size={22} fill={isFavorite ? "#EF4444" : "none"} />
             </button>
 
-            <img src={location.images[0]} style={{...imgCover, borderRadius: '20px'}} alt="main" />
-            <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '10px' }}>
+            <img
+              src={location.images[0]}
+              style={{ ...imgCover, borderRadius: "20px" }}
+              alt="main"
+            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateRows: "1fr 1fr",
+                gap: "10px",
+              }}
+            >
               <img src={location.images[1]} style={imgCover} alt="sub1" />
               <img src={location.images[2]} style={imgCover} alt="sub2" />
             </div>
@@ -92,11 +118,32 @@ export default function LocationDetailPage() {
           <div style={contentBody}>
             <h1 style={titleStyle}>{location.name}</h1>
             <div style={infoGrid}>
-              <div style={infoItem}><MapPin size={18} color="#6366F1" /> <div><b>ระยะทาง</b><br/>{location.dist}</div></div>
-              <div style={infoItem}><Clock size={18} color="#6366F1" /> <div><b>เวลาทำการ</b><br/>{location.openTime}</div></div>
+              <div style={infoItem}>
+                <MapPin size={18} color="#6366F1" />{" "}
+                <div>
+                  <b>ระยะทาง</b>
+                  <br />
+                  {location.dist}
+                </div>
+              </div>
+              <div style={infoItem}>
+                <Clock size={18} color="#6366F1" />{" "}
+                <div>
+                  <b>เวลาทำการ</b>
+                  <br />
+                  {location.openTime}
+                </div>
+              </div>
             </div>
             <p style={descText}>{location.fullDetail}</p>
-            <button style={mapBtnStyle} className="action-btn"> <Navigation2 size={18} fill="white" /> นำทางไปพิกัดนี้ </button>
+            <button
+              style={mapBtnStyle}
+              className="action-btn"
+              url="https://www.google.com/maps/place/%E0%B8%AA%E0%B8%A7%E0%B8%99%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4+(%E0%B8%AA%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%B4%E0%B8%87)/@17.1114319,103.0177379,17z/data=!3m1!4b1!4m6!3m5!1s0x312311b6da238b65:0x49fcb9ce834ddad5!8m2!3d17.1114319!4d103.0177379!16s%2Fg%2F11bxjfy0nm?entry=ttu&g_ep=EgoyMDI2MDIxMS4wIKXMDSoASAFQAw%3D%3D"
+            >
+              {" "}
+              <Navigation2 size={18} fill="white" /> นำทางไปพิกัดนี้{" "}
+            </button>
           </div>
         </div>
       </div>
