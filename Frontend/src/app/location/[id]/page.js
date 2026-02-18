@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { MapPin, Clock, Star, Navigation2, Heart, ArrowLeft } from 'lucide-react';
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  MapPin,
+  Clock,
+  Star,
+  Navigation2,
+  Heart,
+  ArrowLeft,
+} from "lucide-react";
 
 export default function LocationDetailPage() {
   const { id } = useParams();
@@ -11,47 +18,61 @@ export default function LocationDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
+    // จำลองข้อมูล (ในอนาคตควรดึงจาก API หรือฐานข้อมูล)
     const mockDetails = {
       id: id,
-      name: id === '1' ? 'ปะปานคร นครปฐม' : 'Common Room Library',
+      name: id === "1" ? "ปะปานคร นครปฐม" : "Common Room Library",
       images: [
-        'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80',
-        'https://images.unsplash.com/photo-1511497584788-876760111969?q=80',
-        'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80'
+        "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80",
+        "https://images.unsplash.com/photo-1511497584788-876760111969?q=80",
+        "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80",
       ],
-      dist: '1.2 กม.',
-      rating: '4.9',
-      openTime: '09:00 - 18:00 น.',
-      fullDetail: 'สถานที่พักผ่อนที่ออกแบบมาเพื่อความผ่อนคลายโดยเฉพาะ บรรยากาศเงียบสงบพร้อมวิวธรรมชาติที่สวยงาม',
-      tags: ['เงียบสงบ', 'ธรรมชาติ', 'ยอดนิยม'],
-      type: id === '1' ? 'forest' : 'sea'
+      dist: "1.2 กม.",
+      rating: "4.9",
+      openTime: "09:00 - 18:00 น.",
+      fullDetail:
+        "สถานที่พักผ่อนที่ออกแบบมาเพื่อความผ่อนคลายโดยเฉพาะ บรรยากาศเงียบสงบพร้อมวิวธรรมชาติที่สวยงาม",
+      tags: ["เงียบสงบ", "ธรรมชาติ", "ยอดนิยม"],
+      type: id === "1" ? "forest" : "sea",
+      // เพิ่มพิกัดสำหรับการนำทาง (ถ้ามีละติจูด/ลองจิจูดจะแม่นยำกว่า)
+      address: id === "1" ? "ปะปานคร นครปฐม" : "Common Room Library นครปฐม",
     };
     setLocation(mockDetails);
 
-    // ตรวจสอบสถานะหัวใจจาก LocalStorage
-    const savedFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-    setIsFavorite(savedFavs.some(item => item.id === id));
+    const savedFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
+    setIsFavorite(savedFavs.some((item) => item.id === id));
   }, [id]);
 
   const toggleFavorite = () => {
-    const savedFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const savedFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
     let updatedFavs;
 
     if (isFavorite) {
-      updatedFavs = savedFavs.filter(item => item.id !== id);
+      updatedFavs = savedFavs.filter((item) => item.id !== id);
     } else {
-      updatedFavs = [...savedFavs, {
-        id: location.id,
-        name: location.name,
-        date: new Date().toLocaleDateString('th-TH'),
-        type: location.type,
-        isFavorite: true
-      }];
+      updatedFavs = [
+        ...savedFavs,
+        {
+          id: location.id,
+          name: location.name,
+          date: new Date().toLocaleDateString("th-TH"),
+          type: location.type,
+          isFavorite: true,
+        },
+      ];
     }
 
-    localStorage.setItem('favorites', JSON.stringify(updatedFavs));
+    localStorage.setItem("favorites", JSON.stringify(updatedFavs));
     setIsFavorite(!isFavorite);
-    window.dispatchEvent(new Event('storage')); // แจ้งเตือนหน้าอื่น
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  // ฟังก์ชันสำหรับการนำทาง
+  const handleNavigation = () => {
+    if (!location) return;
+    // สร้าง Google Maps URL โดยใช้ชื่อสถานที่ในการค้นหา
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.name + " " + location.address)}`;
+    window.open(mapUrl, "_blank");
   };
 
   if (!location) return <div style={loadingStyle}>กำลังโหลดข้อมูล...</div>;
@@ -60,8 +81,9 @@ export default function LocationDetailPage() {
     <main style={mainWrapper}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap');
-        .action-btn { transition: all 0.2s ease; cursor: pointer; border: none; outline: none; }
-        .action-btn:active { transform: scale(0.9); }
+        .action-btn { transition: all 0.2s ease; cursor: pointer; border: none; outline: none; text-decoration: none; }
+        .action-btn:active { transform: scale(0.95); }
+        .action-btn:hover { opacity: 0.9; }
       `}</style>
 
       <div style={layoutContainer}>
@@ -86,7 +108,6 @@ export default function LocationDetailPage() {
               padding: "12px",
             }}
           >
-            {/* ปุ่มกดใจ */}
             <button
               style={{
                 ...favBtnInside,
@@ -117,32 +138,41 @@ export default function LocationDetailPage() {
 
           <div style={contentBody}>
             <h1 style={titleStyle}>{location.name}</h1>
+
             <div style={infoGrid}>
               <div style={infoItem}>
-                <MapPin size={18} color="#6366F1" />{" "}
+                <MapPin size={18} color="#6366F1" />
                 <div>
-                  <b>ระยะทาง</b>
-                  <br />
-                  {location.dist}
+                  <div style={{ fontSize: "0.8rem", color: "#64748B" }}>
+                    ระยะทาง
+                  </div>
+                  <span style={{ fontWeight: "600" }}>{location.dist}</span>
                 </div>
               </div>
               <div style={infoItem}>
-                <Clock size={18} color="#6366F1" />{" "}
+                <Clock size={18} color="#6366F1" />
                 <div>
-                  <b>เวลาทำการ</b>
-                  <br />
-                  {location.openTime}
+                  <div style={{ fontSize: "0.8rem", color: "#64748B" }}>
+                    เวลาทำการ
+                  </div>
+                  <span style={{ fontWeight: "600" }}>{location.openTime}</span>
                 </div>
               </div>
             </div>
+
             <p style={descText}>{location.fullDetail}</p>
+
             <button
+              onClick={handleNavigation}
               style={mapBtnStyle}
               className="action-btn"
-              url="https://www.google.com/maps/place/%E0%B8%AA%E0%B8%A7%E0%B8%99%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4+(%E0%B8%AA%E0%B8%A7%E0%B8%99%E0%B8%A5%E0%B8%B4%E0%B8%87)/@17.1114319,103.0177379,17z/data=!3m1!4b1!4m6!3m5!1s0x312311b6da238b65:0x49fcb9ce834ddad5!8m2!3d17.1114319!4d103.0177379!16s%2Fg%2F11bxjfy0nm?entry=ttu&g_ep=EgoyMDI2MDIxMS4wIKXMDSoASAFQAw%3D%3D"
             >
-              {" "}
-              <Navigation2 size={18} fill="white" /> นำทางไปพิกัดนี้{" "}
+              <Navigation2
+                size={18}
+                fill="white"
+                style={{ marginRight: "8px" }}
+              />
+              นำทางไปพิกัดนี้
             </button>
           </div>
         </div>
@@ -151,18 +181,88 @@ export default function LocationDetailPage() {
   );
 }
 
-// --- Styles (ตัดมาเฉพาะส่วนสำคัญ) ---
-const mainWrapper = { minHeight: '100vh', backgroundColor: '#F1F5F9', display: 'flex', justifyContent: 'center', padding: '140px 20px', fontFamily: "'Anuphan', sans-serif" };
-const layoutContainer = { width: '100%', maxWidth: '700px' };
-const backContainer = { marginBottom: '15px' };
-const backBtnStyle = { background: 'none', color: '#64748B', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' };
-const detailCardStyle = { backgroundColor: 'white', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', position: 'relative' };
-const favBtnInside = { position: 'absolute', top: '25px', right: '25px', zIndex: 10, width: '45px', height: '45px', borderRadius: '50%', background: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' };
-const imgCover = { width: '100%', height: '100%', objectFit: 'cover', borderRadius: '15px' };
-const contentBody = { padding: '30px 40px' };
-const titleStyle = { fontSize: '1.8rem', fontWeight: '800', color: '#1E1B4B' };
-const infoGrid = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', margin: '20px 0' };
-const infoItem = { display: 'flex', alignItems: 'center', gap: '10px', background: '#F8FAFC', padding: '15px', borderRadius: '20px' };
-const descText = { color: '#64748B', lineHeight: '1.8', marginBottom: '25px' };
-const mapBtnStyle = { width: '100%', background: '#1E1B4B', color: 'white', padding: '18px', borderRadius: '22px', fontWeight: '700' };
-const loadingStyle = { textAlign: 'center', padding: '100px' };
+// --- Styles ---
+const mainWrapper = {
+  minHeight: "100vh",
+  backgroundColor: "#F1F5F9",
+  display: "flex",
+  justifyContent: "center",
+  padding: "40px 20px",
+  fontFamily: "'Anuphan', sans-serif",
+};
+const layoutContainer = { width: "100%", maxWidth: "700px" };
+const backContainer = { marginBottom: "15px" };
+const backBtnStyle = {
+  background: "none",
+  color: "#64748B",
+  fontWeight: "700",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+};
+const detailCardStyle = {
+  backgroundColor: "white",
+  borderRadius: "32px",
+  overflow: "hidden",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.05)",
+  position: "relative",
+};
+const favBtnInside = {
+  position: "absolute",
+  top: "25px",
+  right: "25px",
+  zIndex: 10,
+  width: "45px",
+  height: "45px",
+  borderRadius: "50%",
+  background: "white",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+};
+const imgCover = {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  borderRadius: "15px",
+};
+const contentBody = { padding: "30px 40px" };
+const titleStyle = {
+  fontSize: "1.8rem",
+  fontWeight: "800",
+  color: "#1E1B4B",
+  marginBottom: "10px",
+};
+const infoGrid = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "15px",
+  margin: "20px 0",
+};
+const infoItem = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  background: "#F8FAFC",
+  padding: "15px",
+  borderRadius: "20px",
+};
+const descText = { color: "#64748B", lineHeight: "1.8", marginBottom: "25px" };
+const mapBtnStyle = {
+  width: "100%",
+  background: "#1E1B4B",
+  color: "white",
+  padding: "18px",
+  borderRadius: "22px",
+  fontWeight: "700",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  fontSize: "1rem",
+};
+const loadingStyle = {
+  textAlign: "center",
+  padding: "100px",
+  fontFamily: "'Anuphan', sans-serif",
+};
