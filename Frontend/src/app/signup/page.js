@@ -37,17 +37,20 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
+
       if (response.ok) {
         Swal.fire({
           icon: 'success',
           title: 'สมัครสมาชิกสำเร็จ! 🎉',
-          text: 'สร้างบัญชีเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
+          text: data.message || 'สร้างบัญชีเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
           iconColor: '#10B981',
           confirmButtonColor: '#7c3aed',
           customClass: { popup: 'swal-rounded' }
         }).then(() => { router.push('/login'); });
       } else {
+        // ดึง Error Message จากหลังบ้านมาแสดง เช่น "อีเมลนี้ถูกใช้งานไปแล้ว"
         Swal.fire({
           icon: 'error',
           title: 'สมัครสมาชิกไม่สำเร็จ',
@@ -61,7 +64,7 @@ export default function SignupPage() {
       Swal.fire({
         icon: 'error',
         title: 'Connection Error',
-        text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้',
+        text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้ กรุณาตรวจสอบการรัน Backend',
         iconColor: '#EF4444',
         confirmButtonColor: '#EF4444',
       });
@@ -81,7 +84,6 @@ export default function SignupPage() {
 
       <div className={isVisible ? 'page-fade' : ''} style={containerStyle}>
         
-        {/* Toggle Switch */}
         <div style={{ ...toggleContainerStyle, margin: '0 auto' }}>
           <div style={{
             ...slidingBgStyle,
@@ -94,14 +96,9 @@ export default function SignupPage() {
           <div onClick={() => handleSwitchPage('/login')} style={{ ...toggleTextStyle, color: '#9ca3af', cursor: 'pointer' }}>เข้าสู่ระบบ</div>
         </div>
 
-        {/* --- โลโก้ Social จัดให้อยู่ตรงกลาง --- */}
         <div style={{ display: 'flex', gap: '15px', marginBottom: '32px', marginTop: '30px', justifyContent: 'center', width: '100%' }}>
           {['f', 'G', 'A'].map((icon, i) => (
-            <div 
-              key={i} 
-              className="btn-hover" 
-              style={{ ...socialButtonStyle, alignItems: 'center', display: 'flex' }} 
-            >
+            <div key={i} className="btn-hover" style={{ ...socialButtonStyle, alignItems: 'center', display: 'flex' }}>
               {icon}
             </div>
           ))}
@@ -146,7 +143,6 @@ export default function SignupPage() {
              </div>
            </div>
 
-          {/* Gender Switch จัดให้อยู่ตรงกลาง */}
           <div style={{ ...toggleContainerStyle, marginTop: '10px', height: '54px', backgroundColor: '#f8fafc', maxWidth: '100%', border: '1px solid #f1f5f9', margin: '0 auto' }}>
             <div style={{
               ...slidingBgStyle,
@@ -173,7 +169,6 @@ export default function SignupPage() {
   );
 }
 
-// --- Styles (คงเดิมและปรับปรุงบางส่วน) ---
 const mainBgStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', backgroundImage: 'radial-gradient(at 0% 0%, rgba(226, 209, 249, 0.2) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.05) 0, transparent 50%)', padding: '100px 20px 40px 20px' };
 const containerStyle = { backgroundColor: '#ffffff', width: '100%', maxWidth: '500px', borderRadius: '40px', padding: '50px 40px', boxShadow: '0 25px 80px rgba(0, 0, 0, 0.07)', border: '1px solid #f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'stretch', transition: 'all 0.3s' };
 const toggleContainerStyle = { display: 'flex', backgroundColor: '#f1f5f9', borderRadius: '25px', padding: '5px', position: 'relative', cursor: 'pointer', height: '56px', alignItems: 'center', width: '100%', maxWidth: '340px' };

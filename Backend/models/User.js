@@ -7,24 +7,25 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'], required: true }, 
-  profileImage: { type: String, default: '' }, // เพิ่มสำหรับเก็บรูปภาพ
+  profileImage: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 
-// เข้ารหัสผ่านก่อนบันทึก
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// --- แก้ไขจุดนี้: ลบพารามิเตอร์ 'next' ออกให้หมดเมื่อใช้ async ---
+userSchema.pre('save', async function () {
+  // หากรหัสผ่านไม่มีการเปลี่ยนแปลง ให้หยุดการทำงานของฟังก์ชันนี้ทันที
+  if (!this.isModified('password')) return;
   
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
+    // ไม่ต้องเรียก next() เพราะ Mongoose จะจัดการให้เองเมื่อจบ async function
   } catch (err) {
-    next(err);
+    // โยน error ออกไปเพื่อให้ catch block ใน server.js รับทราบ
+    throw err;
   }
 });
 
-// ฟังก์ชันสำหรับเช็ครหัสผ่านตอน Login
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

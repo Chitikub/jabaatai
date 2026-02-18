@@ -8,8 +8,6 @@ const app = express();
 connectDB(); 
 
 app.use(cors());
-
-// --- แก้ไข: เพิ่ม limit เพื่อให้รองรับไฟล์ภาพ Base64 จากหน้า Profile ---
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -17,15 +15,27 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.post('/api/signup', async (req, res) => {
   try {
     const { firstName, lastName, email, password, gender } = req.body;
+
+    // ตรวจสอบข้อมูลเบื้องต้น
     if (!firstName || !lastName || !email || !password || !gender) {
       return res.status(400).json({ error: 'กรุณากรอกข้อมูลให้ครบทุกช่อง' });
     }
+
+    // ตรวจสอบอีเมลซ้ำ
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'อีเมลนี้ถูกใช้งานไปแล้วในระบบ' });
+    }
+
     const newUser = new User({ firstName, lastName, email, password, gender });
+    
+    // บรรทัดนี้จะไปเรียก middleware ใน User.js ที่เราเพิ่งแก้ไป
     await newUser.save();
+    
     res.status(201).json({ message: 'ลงทะเบียนสำเร็จ! 🎉' });
   } catch (err) {
-    if (err.code === 11000) return res.status(400).json({ error: 'อีเมลนี้ถูกใช้งานไปแล้ว' });
-    res.status(400).json({ error: err.message });
+    console.error("Signup Error Details:", err);
+    res.status(400).json({ error: err.message || 'เกิดข้อผิดพลาดในการลงทะเบียน' });
   }
 });
 
@@ -65,7 +75,7 @@ app.get('/api/profile/:id', async (req, res) => {
   }
 });
 
-// --- API สำหรับอัปเดตโปรไฟล์ (รองรับการอัปโหลดรูปภาพ) ---
+// --- API สำหรับอัปเดตโปรไฟล์ ---
 app.put('/api/profile/:id', async (req, res) => {
   try {
     const { firstName, lastName, gender, profileImage } = req.body;
