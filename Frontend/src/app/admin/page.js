@@ -16,7 +16,6 @@ export default function AdminPage() {
     { id: 3, name: "Somsri Happy", email: "somsri@email.com", status: "active", joinDate: "2024-03-01" },
   ]);
 
-  // ตัวช่วยแปลงค่า Type เป็น Label, Icon และ Color
   const typeMapping = {
     green: { label: 'ธรรมชาติ', icon: '🌳', color: '#E0F2F1' },
     water: { label: 'แหล่งน้ำ', icon: '🌊', color: '#E1F5FE' },
@@ -25,7 +24,7 @@ export default function AdminPage() {
     general: { label: 'ทั่วไป', icon: '📍', color: '#F8FAFC' }
   };
 
-  // --- ฟังก์ชันเพิ่มสถานที่ (เดิม) ---
+  // --- ฟังก์ชันคงเดิม (ตามที่ขอ) ---
   const handleAddLocation = async () => {
     const { value: formValues } = await Swal.fire({
       title: '<span style="font-family:Kanit; font-weight:900; color:#1e1b4b;">✨ เพิ่มพิกัดใหม่</span>',
@@ -95,11 +94,8 @@ export default function AdminPage() {
     }
   };
 
-  // --- ฟังก์ชันแก้ไขสถานที่ (ใหม่) ---
   const handleEditLocation = async (loc) => {
-    // ค้นหา key เดิมเพื่อตั้งค่า default ใน select
     const currentTypeKey = Object.keys(typeMapping).find(key => typeMapping[key].label === loc.type) || 'green';
-
     const { value: formValues } = await Swal.fire({
       title: '<span style="font-family:Kanit; font-weight:900; color:#1e1b4b;">✏️ แก้ไขข้อมูลสถานที่</span>',
       background: '#ffffff',
@@ -170,7 +166,6 @@ export default function AdminPage() {
     }
   };
 
-  // --- ฟังก์ชันลบสถานที่ (ปรับปรุงให้มี confirm) ---
   const handleDeleteLocation = (id, name) => {
     Swal.fire({
       title: 'ยืนยันการลบ?',
@@ -178,7 +173,6 @@ export default function AdminPage() {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#94a3b8',
       confirmButtonText: 'ใช่, ลบเลย',
       cancelButtonText: 'ยกเลิก',
       borderRadius: '20px'
@@ -190,7 +184,6 @@ export default function AdminPage() {
     });
   };
 
-  // --- ฟังก์ชันจัดการผู้ใช้ (คงเดิม) ---
   const handleToggleBan = (user) => {
     const isBanning = user.status === "active";
     Swal.fire({
@@ -217,7 +210,6 @@ export default function AdminPage() {
       icon: 'error',
       showCancelButton: true,
       confirmButtonColor: '#1e1b4b',
-      cancelButtonColor: '#ef4444',
       confirmButtonText: 'ยกเลิก',
       cancelButtonText: 'ใช่, ลบถาวร',
       borderRadius: '20px'
@@ -230,185 +222,135 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="admin-container" style={{ display: 'flex', height: '100vh', width: '100vw', background: '#f0f2f5', overflow: 'hidden', fontFamily: "'Kanit', sans-serif" }}>
+    <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Kanit' }}>
       
-      {/* Sidebar - คงไว้เหมือนเดิมทุกประการ */}
-      <aside style={{ width: '280px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', padding: '40px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '50px', padding: '0 10px' }}>
-           <img src="/logo.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-           <span style={{ fontWeight: 900, fontSize: '22px', color: '#1e1b4b', letterSpacing: '-1px' }}>Mood Location Manage</span>
+      {/* Sidebar: HCI - สม่ำเสมอและแยกส่วนชัดเจน */}
+      <aside style={{ width: '280px', background: '#FFFFFF', borderRight: '1px solid #E2E8F0', padding: '30px 20px', position: 'fixed', height: '100vh' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
+          <div style={{ width: '40px', height: '40px', background: '#4F46E5', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>M</div>
+          <span style={{ fontWeight: 900, fontSize: '20px', color: '#1E293B' }}>MOOD ADMIN</span>
         </div>
-        
-        <nav style={{ flex: 1 }}>
+
+        <nav>
           <div 
             onClick={() => setActiveTab("locations")}
-            style={{ padding: '16px 20px', background: activeTab === "locations" ? '#f5f3ff' : 'transparent', color: activeTab === "locations" ? '#4f46e5' : '#94a3b8', borderRadius: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', cursor: 'pointer', transition: '0.3s' }}
+            style={{ 
+              padding: '14px 20px', borderRadius: '12px', cursor: 'pointer', marginBottom: '10px', transition: '0.2s',
+              background: activeTab === "locations" ? '#F1F5F9' : 'transparent',
+              color: activeTab === "locations" ? '#4F46E5' : '#64748B',
+              fontWeight: activeTab === "locations" ? 'bold' : 'normal',
+              display: 'flex', alignItems: 'center', gap: '12px'
+            }}
           >
-            <span style={{ fontSize: '20px' }}>🏢</span> จัดการสถานที่
+            <span style={{fontSize:'20px'}}>📍</span> จัดการสถานที่
           </div>
           <div 
             onClick={() => setActiveTab("users")}
-            style={{ padding: '16px 20px', background: activeTab === "users" ? '#f5f3ff' : 'transparent', color: activeTab === "users" ? '#4f46e5' : '#94a3b8', borderRadius: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: '0.3s' }}
+            style={{ 
+              padding: '14px 20px', borderRadius: '12px', cursor: 'pointer', transition: '0.2s',
+              background: activeTab === "users" ? '#F1F5F9' : 'transparent',
+              color: activeTab === "users" ? '#4F46E5' : '#64748B',
+              fontWeight: activeTab === "users" ? 'bold' : 'normal',
+              display: 'flex', alignItems: 'center', gap: '12px'
+            }}
           >
-            <span style={{ fontSize: '20px' }}>👥</span> บัญชีผู้ใช้
+            <span style={{fontSize:'20px'}}>👥</span> บัญชีผู้ใช้
           </div>
         </nav>
-
-        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
-          <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Version 2.0.4</p>
-        </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
+      {/* Main Content: HCI - มีพื้นที่หายใจ (White Space) และโครงสร้างชัดเจน */}
+      <main style={{ flex: 1, marginLeft: '280px', padding: '40px 60px' }}>
         
-        {/* Header */}
-        <header style={{ 
-          height: '100px', 
-          padding: '0 50px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          background: 'rgba(255, 255, 255, 0.2)', 
-          backdropFilter: 'blur(15px)', 
-          borderBottom: '1px solid rgba(255,255,255,0.3)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100 
-        }}>
-           
-        </header>
+        {/* Tab Header Section */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '180px' }}>
+          <div style={{ position: 'relative', marginBottom: '-150px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#1E293B', margin: 0 }}>
+              {activeTab === "locations" ? "จัดการสถานที่" : "บัญชีผู้ใช้งาน"}
+            </h2>
+            <p style={{ color: '#64748B', margin: '8px 0 0 0' }}>
+              {activeTab === "locations" ? `พบทั้งหมด ${locations.length} พิกัดในระบบ` : `มีผู้ใช้งานทั้งหมด ${users.length} ราย`}
+            </p>
+          </div>
+          {activeTab === "locations" && (
+            <button onClick={handleAddLocation} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '14px 28px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(79, 70, 229, 0.3)' }}>
+              + เพิ่มพิกัดใหม่
+            </button>
+          )}
+        </div>
 
         {/* Content Area */}
-        <section style={{ flex: 1, overflowY: 'auto', padding: '50px' }}>
-          <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-            
-            {/* TAB: LOCATIONS */}
-            {activeTab === "locations" && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                   <div>
-                      <h3 style={{ fontSize: '32px', fontWeight: 900, color: '#1e1b4b', margin: 0 }}>สถานที่พิกัด</h3>
-                      <p style={{ color: '#64748b', margin: '5px 0 0 0' }}>มีทั้งหมด {locations.length} สถานที่ในระบบ</p>
-                   </div>
-                   <button 
-                      onClick={handleAddLocation}
-                      style={{ background: '#1e1b4b', color: 'white', border: 'none', padding: '16px 32px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 20px 25px -5px rgba(30, 27, 75, 0.2)', transition: 'transform 0.2s' }}
-                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-3px)'}
-                      onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                   >
-                     <span style={{ fontSize: '20px' }}>+</span> เพิ่มสถานที่ใหม่
-                   </button>
+        {activeTab === "locations" ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+            {locations.map(loc => (
+              <div key={loc.id} className="card-item" style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '1px solid #E2E8F0', transition: '0.3s' }}>
+                <div style={{ height: '180px', background: loc.color || '#F8FAFC', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', marginBottom: '20px' }}>
+                  {loc.icon}
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '30px' }}>
-                  {locations.map(loc => (
-                    <div key={loc.id} className="card-hover" style={{ background: '#ffffff', borderRadius: '40px', padding: '30px', border: '1px solid #f1f5f9', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.02)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-                      <div style={{ height: '220px', background: loc.color || '#f8fafc', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '80px', marginBottom: '25px', position: 'relative' }}>
-                        {loc.icon}
-                        <div style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.8)', padding: '8px 15px', borderRadius: '15px', fontSize: '12px', fontWeight: 'bold', color: '#1e1b4b', backdropFilter: 'blur(5px)' }}>
-                           {loc.type}
-                        </div>
-                      </div>
-                      <div style={{ padding: '0 10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <h4 style={{ margin: 0, fontWeight: 900, fontSize: '22px', color: '#1e1b4b' }}>{loc.name}</h4>
-                          <div style={{ background: '#f5f3ff', color: '#6366f1', padding: '4px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase' }}>{loc.personality}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '15px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                             <span style={{ color: '#fbbf24' }}>⭐</span>
-                             <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{loc.rating}</span>
-                          </div>
-                          <div style={{ color: '#94a3b8', fontSize: '13px' }}>📍 {loc.lat}, {loc.lng}</div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
-                           <button 
-                            onClick={() => handleEditLocation(loc)}
-                            style={{ flex: 1, padding: '12px', borderRadius: '15px', border: '1px solid #e2e8f0', background: 'white', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s' }}
-                           >แก้ไข</button>
-                           <button 
-                            onClick={() => handleDeleteLocation(loc.id, loc.name)} 
-                            style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '15px', border: 'none', background: '#fee2e2', color: '#ef4444', cursor: 'pointer' }}
-                           >🗑️</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: 800, textTransform: 'uppercase' }}>{loc.type}</span>
+                  <span style={{ fontSize: '12px', background: '#F1F5F9', padding: '4px 10px', borderRadius: '8px', color: '#475569' }}>{loc.personality}</span>
                 </div>
-              </>
-            )}
-
-            {/* TAB: USERS */}
-            {activeTab === "users" && (
-              <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', borderRadius: '40px', padding: '40px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)', border: '1px solid rgba(255,255,255,0.5)' }}>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, color: '#1e1b4b', marginBottom: '30px' }}>บัญชีผู้ใช้งานระบบ</h3>
-                <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 15px' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: '#94a3b8', fontSize: '14px' }}>
-                      <th style={{ padding: '0 20px' }}>ผู้ใช้งาน</th>
-                      <th>สถานะ</th>
-                      <th>วันที่เข้าร่วม</th>
-                      <th style={{ textAlign: 'center' }}>จัดการ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map(user => (
-                      <tr key={user.id} style={{ background: '#fff', borderRadius: '20px', transition: 'transform 0.2s' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.01)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-                        <td style={{ padding: '20px', borderRadius: '20px 0 0 20px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <div style={{ width: '45px', height: '45px', borderRadius: '15px', background: user.status === 'active' ? '#f5f3ff' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
-                              {user.status === 'active' ? '👤' : '🚫'}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 'bold', color: '#1e1b4b' }}>{user.name}</div>
-                              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{user.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span style={{ padding: '6px 15px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', background: user.status === 'active' ? '#dcfce7' : '#fee2e2', color: user.status === 'active' ? '#16a34a' : '#ef4444' }}>
-                            {user.status.toUpperCase()}
-                          </span>
-                        </td>
-                        <td style={{ color: '#64748b', fontSize: '14px' }}>{user.joinDate}</td>
-                        <td style={{ padding: '20px', borderRadius: '0 20px 20px 0', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                            <button 
-                              onClick={() => handleToggleBan(user)}
-                              style={{ padding: '10px 18px', borderRadius: '15px', border: '1px solid #e2e8f0', background: '#fff', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', transition: '0.2s', color: user.status === 'active' ? '#ef4444' : '#10b981' }}
-                            >
-                              {user.status === 'active' ? 'ระงับการใช้งาน' : 'ปลดระงับ'}
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteUser(user.id)}
-                              style={{ width: '42px', height: '42px', borderRadius: '15px', border: 'none', background: '#1e1b4b', color: '#fff', cursor: 'pointer' }}
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <h4 style={{ fontSize: '20px', fontWeight: 700, margin: '12px 0', color: '#1E293B' }}>{loc.name}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: '#64748B', fontSize: '14px' }}>
+                  <span>⭐ {loc.rating}</span>
+                  <span>📍 {loc.lat}, {loc.lng}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                  <button onClick={() => handleEditLocation(loc)} style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #E2E8F0', background: 'white', fontWeight: 'bold', cursor: 'pointer' }}>แก้ไข</button>
+                  <button onClick={() => handleDeleteLocation(loc.id, loc.name)} style={{ width: '45px', borderRadius: '12px', border: 'none', background: '#FEE2E2', color: '#EF4444', cursor: 'pointer' }}>🗑️</button>
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </section>
+        ) : (
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>ผู้ใช้งาน</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>สถานะ</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>วันที่เข้าร่วม</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B', textAlign: 'center' }}>การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(user => (
+                  <tr key={user.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '20px 24px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#1E293B' }}>{user.name}</div>
+                      <div style={{ fontSize: '13px', color: '#94A3B8' }}>{user.email}</div>
+                    </td>
+                    <td style={{ padding: '20px 24px' }}>
+                      <span style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', background: user.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: user.status === 'active' ? '#16A34A' : '#EF4444' }}>
+                        {user.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td style={{ padding: '20px 24px', color: '#64748B' }}>{user.joinDate}</td>
+                    <td style={{ padding: '20px 24px', textAlign: 'center' }}>
+                      <button onClick={() => handleToggleBan(user)} style={{ marginRight: '10px', padding: '8px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', color: user.status === 'active' ? '#EF4444' : '#10B981', fontWeight: 'bold' }}>
+                        {user.status === 'active' ? 'ระงับ' : 'ปลด'}
+                      </button>
+                      <button onClick={() => handleDeleteUser(user.id)} style={{ padding: '8px', borderRadius: '10px', border: 'none', background: '#F1F5F9', cursor: 'pointer' }}>🗑️</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </main>
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700;900&display=swap');
-        .card-hover:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 30px 50px -12px rgba(0, 0, 0, 0.1) !important;
-          border-color: #6366f1 !important;
+        .card-item:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+          border-color: #4F46E5 !important;
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
       `}</style>
     </div>
   );
