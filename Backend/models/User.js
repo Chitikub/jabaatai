@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
@@ -35,6 +36,15 @@ userSchema.pre("save", async function () {
 // Method สำหรับตรวจสอบรหัสผ่านตอน Login
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Method สำหรับสร้าง JWT Token
+userSchema.methods.generateToken = function () {
+  return jwt.sign(
+    { userId: this._id, email: this.email, role: this.role },
+    process.env.SECRET,
+    { expiresIn: "7d" }
+  );
 };
 
 module.exports = mongoose.model("User", userSchema);
