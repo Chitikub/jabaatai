@@ -1,9 +1,45 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("locations");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
+      const parsedUser = userData ? JSON.parse(userData) : null;
+      
+      // ตรวจสอบว่าเป็น admin หรือไม่
+      if (!parsedUser || (parsedUser.role !== "admin" && parsedUser.email !== "admin@gmail.com")) {
+        router.push("/login");
+      }
+      setUser(parsedUser);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: "ยืนยันการออกจากระบบ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#4F46E5",
+      confirmButtonText: "ออกจากระบบ",
+      cancelButtonText: "ยกเลิก",
+      reverseButtons: true,
+      borderRadius: "20px"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("user_profile");
+        router.push("/login");
+      }
+    });
+  };
   const [locations, setLocations] = useState([
     { id: 1, name: "สวนป่าเบญจกิติ", personality: "Introvert", type: "ธรรมชาติ", lat: "13.73", lng: "100.55", rating: "4.8", icon: "🌿", color: "#E0F2F1" },
     { id: 2, name: "Jodd Fairs", personality: "Extrovert", type: "ตลาดกลางคืน", lat: "13.75", lng: "100.56", rating: "4.5", icon: "🎡", color: "#FFF3E0" },
@@ -222,22 +258,73 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Kanit' }}>
+    <div className="admin-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Kanit' }}>
       
-      {/* Sidebar: HCI - สม่ำเสมอและแยกส่วนชัดเจน */}
-      <aside style={{ width: '280px', background: '#FFFFFF', borderRight: '1px solid #E2E8F0', padding: '30px 20px', position: 'fixed', height: '100vh' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
-          <div style={{ width: '40px', height: '40px', background: '#4F46E5', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>M</div>
-          <span style={{ fontWeight: 900, fontSize: '20px', color: '#1E293B' }}>MOOD ADMIN</span>
+      {/* Admin Navbar */}
+      <nav style={{ 
+        background: 'white', 
+        borderBottom: '2px solid #E2E8F0', 
+        padding: '0 40px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '80px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+          <div style={{ width: '45px', height: '45px', background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '20px' }}>M</div>
+          <div>
+            <div style={{ fontWeight: 900, fontSize: '18px', color: '#1E293B' }}>MOOD ADMIN</div>
+            <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '500' }}>Dashboard</div>
+          </div>
         </div>
 
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingRight: '20px', borderRight: '2px solid #E2E8F0' }}>
+              <img 
+                src={user.profileImage || "https://ui-avatars.com/api/?name=" + user.firstName + "&background=4F46E5&color=fff"} 
+                alt="Profile" 
+                style={{ width: '40px', height: '40px', borderRadius: '10px', objectFit: 'cover' }}
+                onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=" + user.firstName + "&background=4F46E5&color=fff"; }}
+              />
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#1E293B' }}>{user.firstName}</div>
+                <div style={{ fontSize: '12px', color: '#94A3B8' }}>Admin</div>
+              </div>
+            </div>
+            <button 
+              onClick={handleLogout}
+              style={{ 
+                padding: '10px 20px', 
+                borderRadius: '12px', 
+                border: '2px solid #FEE2E2', 
+                background: '#FEE2E2', 
+                color: '#EF4444', 
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: '0.3s'
+              }}
+              onMouseEnter={(e) => { e.target.background = '#FECACA'; e.target.style.background = '#FECACA'; }}
+              onMouseLeave={(e) => { e.target.background = '#FEE2E2'; e.target.style.background = '#FEE2E2'; }}
+            >
+              🚪 ออกจากระบบ
+            </button>
+          </div>
+        )}
+      </nav>
+
+      {/* Main Content */}
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Sidebar */}
+        <aside style={{ width: '280px', background: '#FFFFFF', borderRight: '1px solid #E2E8F0', padding: '30px 20px' }}>
         <nav>
           <div 
             onClick={() => setActiveTab("locations")}
             style={{ 
-              padding: '14px 20px', borderRadius: '12px', cursor: 'pointer', marginBottom: '10px', transition: '0.2s',
-              background: activeTab === "locations" ? '#F1F5F9' : 'transparent',
-              color: activeTab === "locations" ? '#4F46E5' : '#64748B',
+              padding: '16px 20px', borderRadius: '14px', cursor: 'pointer', marginBottom: '12px', transition: '0.3s',
+              background: activeTab === "locations" ? '#4F46E5' : 'transparent',
+              color: activeTab === "locations" ? 'white' : '#64748B',
               fontWeight: activeTab === "locations" ? 'bold' : 'normal',
               display: 'flex', alignItems: 'center', gap: '12px'
             }}
@@ -247,9 +334,9 @@ export default function AdminPage() {
           <div 
             onClick={() => setActiveTab("users")}
             style={{ 
-              padding: '14px 20px', borderRadius: '12px', cursor: 'pointer', transition: '0.2s',
-              background: activeTab === "users" ? '#F1F5F9' : 'transparent',
-              color: activeTab === "users" ? '#4F46E5' : '#64748B',
+              padding: '16px 20px', borderRadius: '14px', cursor: 'pointer', transition: '0.3s',
+              background: activeTab === "users" ? '#4F46E5' : 'transparent',
+              color: activeTab === "users" ? 'white' : '#64748B',
               fontWeight: activeTab === "users" ? 'bold' : 'normal',
               display: 'flex', alignItems: 'center', gap: '12px'
             }}
@@ -260,30 +347,33 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Content: HCI - มีพื้นที่หายใจ (White Space) และโครงสร้างชัดเจน */}
-      <main style={{ flex: 1, marginLeft: '280px', padding: '40px 60px' }}>
+      <main style={{ flex: 1, padding: '40px 80px' }}>
         
         {/* Tab Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '180px' }}>
-          <div style={{ position: 'relative', marginBottom: '-150px' }}>
-            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#1E293B', margin: 0 }}>
-              {activeTab === "locations" ? "จัดการสถานที่" : "บัญชีผู้ใช้งาน"}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <div style={{ position: 'relative' }}>
+            <h2 style={{ fontSize: '36px', fontWeight: 900, color: '#1E293B', margin: 0, background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {activeTab === "locations" ? "📍 จัดการสถานที่" : "👥 บัญชีผู้ใช้งาน"}
             </h2>
-            <p style={{ color: '#64748B', margin: '8px 0 0 0' }}>
+            <p style={{ color: '#64748B', margin: '12px 0 0 0', fontSize: '16px' }}>
               {activeTab === "locations" ? `พบทั้งหมด ${locations.length} พิกัดในระบบ` : `มีผู้ใช้งานทั้งหมด ${users.length} ราย`}
             </p>
           </div>
           {activeTab === "locations" && (
-            <button onClick={handleAddLocation} style={{ background: '#4F46E5', color: 'white', border: 'none', padding: '14px 28px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(79, 70, 229, 0.3)' }}>
-              + เพิ่มพิกัดใหม่
+            <button onClick={handleAddLocation} style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79, 70, 229, 0.35)', transition: '0.3s', fontSize: '15px' }} 
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-3px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              ✨ เพิ่มพิกัดใหม่
             </button>
           )}
         </div>
 
         {/* Content Area */}
         {activeTab === "locations" ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '28px' }}>
             {locations.map(loc => (
-              <div key={loc.id} className="card-item" style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '1px solid #E2E8F0', transition: '0.3s' }}>
+              <div key={loc.id} className="card-item" style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '2px solid #E2E8F0', transition: '0.3s', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}>
                 <div style={{ height: '180px', background: loc.color || '#F8FAFC', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', marginBottom: '20px' }}>
                   {loc.icon}
                 </div>
@@ -297,14 +387,24 @@ export default function AdminPage() {
                   <span>📍 {loc.lat}, {loc.lng}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
-                  <button onClick={() => handleEditLocation(loc)} style={{ flex: 1, padding: '10px', borderRadius: '12px', border: '1px solid #E2E8F0', background: 'white', fontWeight: 'bold', cursor: 'pointer' }}>แก้ไข</button>
-                  <button onClick={() => handleDeleteLocation(loc.id, loc.name)} style={{ width: '45px', borderRadius: '12px', border: 'none', background: '#FEE2E2', color: '#EF4444', cursor: 'pointer' }}>🗑️</button>
+                  <button onClick={() => handleEditLocation(loc)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '2px solid #E2E8F0', background: 'white', fontWeight: 'bold', cursor: 'pointer', transition: '0.3s', color: '#4F46E5' }}
+                    onMouseEnter={(e) => { e.target.background = '#F1F5F9'; e.target.style.borderColor = '#4F46E5'; }}
+                    onMouseLeave={(e) => { e.target.background = 'white'; e.target.style.borderColor = '#E2E8F0'; }}
+                  >
+                    ✏️ แก้ไข
+                  </button>
+                  <button onClick={() => handleDeleteLocation(loc.id, loc.name)} style={{ width: '50px', borderRadius: '12px', border: '2px solid #FEE2E2', background: '#FEE2E2', color: '#EF4444', cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}
+                    onMouseEnter={(e) => e.target.style.background = '#FECACA'}
+                    onMouseLeave={(e) => e.target.style.background = '#FEE2E2'}
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+          <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
@@ -327,11 +427,19 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td style={{ padding: '20px 24px', color: '#64748B' }}>{user.joinDate}</td>
-                    <td style={{ padding: '20px 24px', textAlign: 'center' }}>
-                      <button onClick={() => handleToggleBan(user)} style={{ marginRight: '10px', padding: '8px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', color: user.status === 'active' ? '#EF4444' : '#10B981', fontWeight: 'bold' }}>
-                        {user.status === 'active' ? 'ระงับ' : 'ปลด'}
+                    <td style={{ padding: '24px', textAlign: 'center' }}>
+                      <button onClick={() => handleToggleBan(user)} style={{ marginRight: '10px', padding: '10px 18px', borderRadius: '10px', border: '2px solid #E2E8F0', background: 'white', cursor: 'pointer', color: user.status === 'active' ? '#EF4444' : '#10B981', fontWeight: 'bold', transition: '0.3s' }}
+                        onMouseEnter={(e) => e.target.style.background = user.status === 'active' ? '#FEE2E2' : '#DCFCE7'}
+                        onMouseLeave={(e) => e.target.style.background = 'white'}
+                      >
+                        {user.status === 'active' ? '🚫 ระงับ' : '🔓 ปลด'}
                       </button>
-                      <button onClick={() => handleDeleteUser(user.id)} style={{ padding: '8px', borderRadius: '10px', border: 'none', background: '#F1F5F9', cursor: 'pointer' }}>🗑️</button>
+                      <button onClick={() => handleDeleteUser(user.id)} style={{ padding: '10px', borderRadius: '10px', border: '2px solid #F1F5F9', background: '#F1F5F9', cursor: 'pointer', transition: '0.3s' }}
+                        onMouseEnter={(e) => e.target.style.background = '#E2E8F0'}
+                        onMouseLeave={(e) => e.target.style.background = '#F1F5F9'}
+                      >
+                        🗑️
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -340,17 +448,22 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+      </div>
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700;900&display=swap');
         .card-item:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+          transform: translateY(-8px);
+          box-shadow: 0 20px 35px -5px rgba(79, 70, 229, 0.15);
           border-color: #4F46E5 !important;
         }
+        .card-item {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        }
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
       `}</style>
     </div>
   );

@@ -39,6 +39,28 @@ export default function HomePage() {
 
   // ปรับปรุงการแจ้งเตือนให้น่าใช้งานขึ้น (HCI: Aesthetic and Consistency)
   const handleProcessSearch = async () => {
+    // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user") || localStorage.getItem("user_profile");
+      if (!user) {
+        Swal.fire({
+          title: "ต้องเข้าสู่ระบบก่อน",
+          text: "กรุณาเข้าสู่ระบบเพื่อค้นหาพิกัดที่เหมาะสม",
+          icon: "warning",
+          confirmButtonColor: "#6366F1",
+          confirmButtonText: "ไปที่หน้า Login",
+          showCancelButton: true,
+          cancelButtonText: "ยกเลิก",
+          borderRadius: "25px"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push("/login");
+          }
+        });
+        return;
+      }
+    }
+
     const input = searchTerm.trim().toLowerCase();
     if (!input) return;
 
@@ -138,6 +160,31 @@ export default function HomePage() {
     router.push(`/location/${id}`);
   };
 
+  const handleMoodClick = (mood) => {
+    // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบหรือยัง
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user") || localStorage.getItem("user_profile");
+      if (!user) {
+        Swal.fire({
+          title: "ต้องเข้าสู่ระบบก่อน",
+          text: "กรุณาเข้าสู่ระบบเพื่อค้นหาพิกัดที่เหมาะสม",
+          icon: "warning",
+          confirmButtonColor: "#6366F1",
+          confirmButtonText: "ไปที่หน้า Login",
+          showCancelButton: true,
+          cancelButtonText: "ยกเลิก",
+          borderRadius: "25px"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            router.push("/login");
+          }
+        });
+        return;
+      }
+    }
+    startSearch(mood);
+  };
+
   useEffect(() => {
     if (displayData.show) resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [displayData.show]);
@@ -206,7 +253,7 @@ export default function HomePage() {
 
       <div className="mood-grid">
         {moods.map(m => (
-          <div key={m.id} className="mood-card" onClick={() => startSearch(m)}>
+          <div key={m.id} className="mood-card" onClick={() => handleMoodClick(m)}>
             <span className="mood-emoji">{m.emoji}</span>
             <span className="mood-name">{m.name}</span>
           </div>
