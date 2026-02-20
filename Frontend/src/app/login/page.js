@@ -46,8 +46,15 @@ export default function LoginPage() {
           }
         });
 
+        // ตรวจสอบว่าเป็น admin หรือไม่
+        const isAdmin = data.user?.role === "admin" || data.user?.email === "admin@gmail.com";
+
         setTimeout(() => {
-          router.push('/');
+          if (isAdmin) {
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
         }, 1500);
 
       } else {

@@ -1,3 +1,5 @@
+'use client';
+import { usePathname } from 'next/navigation';
 import './globals.css';
 import Link from 'next/link';
 import Navbar from './components/Navbar';
@@ -12,14 +14,17 @@ const mali = Mali({
 });
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith('/admin') || pathname === '/profile';
+
   return (
     <html lang="th">
       <body className={mali.className} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', margin: 0 }}>
-        <Navbar />
-        <main style={{ flex: 1 }}>
+        {!isAdminPage && <Navbar />}
+        <main style={{ flex: 1, marginTop: isAdminPage ? '0' : '120px' }}>
           {children}
         </main>
-        <Footer />
+        {!isAdminPage && <Footer />}
       </body>
     </html>
   );

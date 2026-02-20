@@ -109,7 +109,7 @@ export default function ProfilePage() {
   return (
     <main className="page-container">
       <style>{`
-        .page-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #F1F5F9; padding: 20px; font-family: 'Anuphan', sans-serif; }
+        .page-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #F1F5F9; padding: 20px; font-family: 'Mali', sans-serif; }
         .profile-card { background: white; width: 100%; max-width: 500px; border-radius: 30px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
         .avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
         .avatar-wrapper { position: relative; width: 120px; height: 120px; border-radius: 40px; overflow: hidden; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 8px 25px rgba(0,0,0,0.1); cursor: ${isEditing ? 'pointer' : 'default'}; }
