@@ -37,6 +37,21 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [displayData, setDisplayData] = useState({ mood: null, personality: '', category: '', show: false });
 
+  // หากเป็น admin ให้เปลี่ยนเส้นทางไปหน้า /admin ทันที (ไม่แสดงหน้าค้นหา/ความรู้สึก)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('user_profile') || localStorage.getItem('user');
+        const user = userData ? JSON.parse(userData) : null;
+        if (user && (user.role === 'admin' || user.email === 'admin@gmail.com')) {
+          router.push('/admin');
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [router]);
+
   // ปรับปรุงการแจ้งเตือนให้น่าใช้งานขึ้น (HCI: Aesthetic and Consistency)
   const handleProcessSearch = async () => {
     const input = searchTerm.trim().toLowerCase();

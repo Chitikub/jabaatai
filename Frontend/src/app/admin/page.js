@@ -46,6 +46,15 @@ export default function AdminPage() {
     { id: 3, name: "BACC หอศิลป์", personality: "Introvert", type: "ศิลปะ", lat: "13.74", lng: "100.53", rating: "4.7", icon: "🎨", color: "#F3E5F5" },
   ]);
 
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfile, setEditProfile] = useState({ firstName: '', lastName: '', gender: '', email: '', profileImage: '' });
+
+  const [contactRequests, setContactRequests] = useState([
+    { id: 1, name: 'ณัฐพล', email: 'nut@example.com', message: 'อยากแนะนำสถานที่ใหม่', date: '2025-12-01', status: 'open' },
+    { id: 2, name: 'ปาริชาติ', email: 'pari@example.com', message: 'ระบบล็อกอินมีปัญหา', date: '2026-01-10', status: 'open' },
+  ]);
+
   const [users, setUsers] = useState([
     { id: 1, name: "Somchai Raidee", email: "somchai@email.com", status: "active", joinDate: "2024-01-15" },
     { id: 2, name: "Mana Deeja", email: "mana@email.com", status: "banned", joinDate: "2024-02-10" },
@@ -257,6 +266,74 @@ export default function AdminPage() {
     });
   };
 
+  // ----- Admin: edit profile (open inline panel) -----
+  const handleEditProfile = () => {
+    const current = user || {};
+    setEditProfile({
+      firstName: current.firstName || '',
+      lastName: current.lastName || current.lastName || '',
+      gender: current.gender || '',
+      email: current.email || '',
+      profileImage: current.profileImage || ''
+    });
+    setIsEditingProfile(false);
+    setShowEditProfile(true);
+  };
+
+  const handleChangeProfile = (field, value) => {
+    setEditProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveProfile = () => {
+    const updated = { ...(user || {}), ...editProfile };
+    try { localStorage.setItem('user_profile', JSON.stringify(updated)); } catch (e) {}
+    setUser(updated);
+    setIsEditingProfile(false);
+    setShowEditProfile(false);
+    Swal.fire({ icon: 'success', title: 'บันทึกแล้ว', showConfirmButton: false, timer: 1000 });
+  };
+
+  const handleCancelEditProfile = () => {
+    // revert changes
+    setEditProfile({ firstName: user?.firstName || '', lastName: user?.lastName || '', gender: user?.gender || '', email: user?.email || '', profileImage: user?.profileImage || '' });
+    setIsEditingProfile(false);
+    setShowEditProfile(false);
+  };
+
+  // ----- Contact requests handlers -----
+  const handleReplyRequest = async (req) => {
+    const { value: reply } = await Swal.fire({
+      title: `ตอบกลับ ${req.name}`,
+      input: 'textarea',
+      inputPlaceholder: 'เขียนข้อความตอบกลับ...',
+      showCancelButton: true,
+      confirmButtonText: 'ส่ง',
+      cancelButtonText: 'ยกเลิก',
+      preConfirm: (val) => {
+        if (!val) Swal.showValidationMessage('กรุณาใส่ข้อความ');
+        return val;
+      }
+    });
+    if (reply) {
+      // mock: mark as resolved
+      setContactRequests(contactRequests.map(c => c.id === req.id ? { ...c, status: 'resolved' } : c));
+      Swal.fire({ icon: 'success', title: 'ส่งข้อความเรียบร้อย', showConfirmButton: false, timer: 1200 });
+    }
+  };
+
+  const handleToggleResolve = (id) => {
+    setContactRequests(contactRequests.map(c => c.id === id ? { ...c, status: c.status === 'open' ? 'resolved' : 'open' } : c));
+  };
+
+  const handleDeleteRequest = (id) => {
+    Swal.fire({ title: 'ลบคำร้องนี้?', text: 'ลบแล้วจะไม่สามารถกู้คืนได้', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', cancelButtonText: 'ยกเลิก' }).then(res => {
+      if (res.isConfirmed) {
+        setContactRequests(contactRequests.filter(c => c.id !== id));
+        Swal.fire({ icon: 'success', title: 'ลบเรียบร้อย', showConfirmButton: false, timer: 1000 });
+      }
+    });
+  };
+
   return (
     <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Mali, sans-serif' }}>
 
@@ -280,7 +357,7 @@ export default function AdminPage() {
               <span style={{ fontSize: '18px' }}>👥</span>
               <span style={{ fontSize: '15px' }}>บัญชีผู้ใช้</span>
             </button>
-            <button onClick={() => router.push('/contact')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: 'transparent', color: '#64748B', fontWeight: 600 }}>
+            <button onClick={() => setActiveTab('contact')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: 'transparent', color: '#64748B', fontWeight: 600 }}>
               <span style={{ fontSize: '18px' }}>✉️</span>
               <span style={{ fontSize: '15px' }}>คำร้องติดต่อ</span>
             </button>
@@ -304,8 +381,11 @@ export default function AdminPage() {
           )}
 
           <div style={{ marginTop: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              <button onClick={() => handleEditProfile()} style={{ flex: 1, padding: '8px', borderRadius: '10px', border: '1px solid #EAEAEA', background: '#FFFFFF', color: '#374151', fontWeight: '700', cursor: 'pointer' }}>✏️ แก้ไขโปรไฟล์</button>
+            </div>
             <button onClick={handleLogout} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: 'none', background: '#FEE2E2', color: '#EF4444', fontWeight: '700', cursor: 'pointer' }}>🚪 ออกจากระบบ</button>
-          </div>
+            </div>
         </div>
       </aside>
 
@@ -315,13 +395,13 @@ export default function AdminPage() {
         {/* Tab Header Section */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
           <div style={{ position: 'relative' }}>
-            <h2 style={{ fontSize: '36px', fontWeight: 900, color: '#1E293B', margin: 0, background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {activeTab === "locations" ? "📍 จัดการสถานที่" : "👥 บัญชีผู้ใช้งาน"}
-            </h2>
-            <p style={{ color: '#64748B', margin: '12px 0 0 0', fontSize: '16px' }}>
-              {activeTab === "locations" ? `พบทั้งหมด ${locations.length} พิกัดในระบบ` : `มีผู้ใช้งานทั้งหมด ${users.length} ราย`}
-            </p>
-          </div>
+              <h2 style={{ fontSize: '36px', fontWeight: 900, color: '#1E293B', margin: 0, background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {activeTab === 'locations' ? '📍 จัดการสถานที่' : activeTab === 'users' ? '👥 บัญชีผู้ใช้งาน' : '✉️ คำร้องติดต่อ'}
+              </h2>
+              <p style={{ color: '#64748B', margin: '12px 0 0 0', fontSize: '16px' }}>
+                {activeTab === 'locations' ? `พบทั้งหมด ${locations.length} พิกัดในระบบ` : activeTab === 'users' ? `มีผู้ใช้งานทั้งหมด ${users.length} ราย` : `รายการคำร้องทั้งหมด ${contactRequests.length} เรื่อง`}
+              </p>
+            </div>
           {activeTab === "locations" && (
             <button onClick={handleAddLocation} style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79, 70, 229, 0.35)', transition: '0.3s', fontSize: '15px' }} 
               onMouseEnter={(e) => e.target.style.transform = 'translateY(-3px)'}
@@ -366,7 +446,7 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : activeTab === 'users' ? (
           <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -409,8 +489,101 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
+        ) : (
+          // contact tab
+          activeTab === 'contact' ? (
+            <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #E2E8F0', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '12px' }}>คำร้องติดต่อ (Admin)</h3>
+              <p style={{ color: '#64748B', marginBottom: '18px' }}>จัดการข้อความจากผู้ใช้งาน — ตอบกลับหรือปิดคำร้องได้</p>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {contactRequests.map(req => (
+                  <div key={req.id} style={{ border: '1px solid #F1F5F9', padding: '14px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#1E293B' }}>{req.name} <span style={{ fontWeight: 600, color: '#94A3B8', fontSize: '13px' }}>— {req.email}</span></div>
+                      <div style={{ color: '#475569', marginTop: '6px' }}>{req.message}</div>
+                      <div style={{ color: '#94A3B8', fontSize: '13px', marginTop: '8px' }}>{req.date} • <strong style={{ color: req.status === 'open' ? '#16A34A' : '#6B7280' }}>{req.status}</strong></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <button onClick={() => handleReplyRequest(req)} style={{ padding: '8px 12px', borderRadius: '10px', background: '#4F46E5', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700 }}>ตอบกลับ</button>
+                      <button onClick={() => handleToggleResolve(req.id)} style={{ padding: '8px 12px', borderRadius: '10px', background: req.status === 'open' ? '#10B981' : '#F3F4F6', color: req.status === 'open' ? 'white' : '#374151', border: 'none', cursor: 'pointer', fontWeight: 700 }}>{req.status === 'open' ? 'ดำเนินการแล้ว' : 'เปิดใหม่'}</button>
+                      <button onClick={() => handleDeleteRequest(req.id)} style={{ padding: '8px 12px', borderRadius: '10px', background: '#FEE2E2', color: '#B91C1C', border: 'none', cursor: 'pointer', fontWeight: 700 }}>ลบ</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null
         )}
       </main>
+
+      {showEditProfile && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,75,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div style={{ width: '550px', background: 'white', borderRadius: '32px', padding: '40px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', position: 'relative' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '28px' }}>
+              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F97316' }}>
+                <img src={editProfile.profileImage || '/avatar-placeholder.png'} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <h3 style={{ marginTop: '16px', fontSize: '24px', fontWeight: 800, color: '#1E293B' }}>{editProfile.firstName || 'User Name'}</h3>
+              <div style={{ color: '#3B82F6', fontSize: '14px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>✓ Verified Account</div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+              <div>
+                <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>ชื่อจริง</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>👤</span>
+                  <input disabled={!isEditingProfile} value={editProfile.firstName} onChange={(e)=>handleChangeProfile('firstName', e.target.value)} placeholder="User" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>นามสกุล</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>👤</span>
+                  <input disabled={!isEditingProfile} value={editProfile.lastName} onChange={(e)=>handleChangeProfile('lastName', e.target.value)} placeholder="Name" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937' }} />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>ระบุเพศ</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>⚥</span>
+                <select disabled={!isEditingProfile} value={editProfile.gender} onChange={(e)=>handleChangeProfile('gender', e.target.value)} style={{ width: '100%', padding: '12px 12px 12px 40px', paddingRight: '14px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937', appearance: 'none' }}>
+                  <option value="">ชาย</option>
+                  <option value="ชาย">ชาย</option>
+                  <option value="หญิง">หญิง</option>
+                  <option value="อื่นๆ">อื่นๆ</option>
+                </select>
+                <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }}>▼</span>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>อีเมล</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>✉️</span>
+                <input readOnly value={editProfile.email} placeholder="Username@example.com" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: '#F5F5F5', fontSize: '14px', color: '#666666' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-start' }}>
+              {!isEditingProfile ? (
+                <>
+                  <button onClick={() => setIsEditingProfile(true)} style={{ flex: 1, padding: '14px 22px', borderRadius: '14px', background: '#1E1B4B', color: 'white', border: 'none', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>✏️ แก้ไขโปรไฟล์</button>
+                  <button onClick={handleCancelEditProfile} style={{ padding: '14px 22px', borderRadius: '14px', background: '#E5E7EB', color: '#6B7280', border: 'none', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>กลับหน้าหลัก</button>
+                </>
+              ) : (
+                <>
+                  <button onClick={handleSaveProfile} style={{ flex: 1, padding: '14px 22px', borderRadius: '14px', background: '#1E1B4B', color: 'white', border: 'none', fontWeight: 800, fontSize: '15px', cursor: 'pointer' }}>ยืนยัน</button>
+                  <button onClick={() => { setIsEditingProfile(false); setEditProfile({ firstName: user?.firstName || '', lastName: user?.lastName || '', gender: user?.gender || '', email: user?.email || '', profileImage: user?.profileImage || '' }); }} style={{ padding: '14px 22px', borderRadius: '14px', background: '#E5E7EB', color: '#6B7280', border: 'none', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>ยกเลิก</button>
+                </>
+              )}
+            </div>
+
+            <button onClick={() => setShowEditProfile(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Mali:wght@300;400;700;800&display=swap');
