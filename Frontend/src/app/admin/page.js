@@ -1,25 +1,50 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { X, Camera, User, Mail, VenusAndMars, ShieldCheck, Edit3, Save } from "lucide-react";
 import Swal from "sweetalert2";
 
 export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("locations");
+  const [mounted, setMounted] = useState(false);
+  const [locations, setLocations] = useState([
+    { id: 1, name: "สวนป่าเบญจกิติ", personality: "Introvert", type: "ธรรมชาติ", lat: "13.73", lng: "100.55", rating: "4.8", icon: "🌿", color: "#E0F2F1" },
+    { id: 2, name: "Jodd Fairs", personality: "Extrovert", type: "ตลาดกลางคืน", lat: "13.75", lng: "100.56", rating: "4.5", icon: "🎡", color: "#FFF3E0" },
+    { id: 3, name: "BACC หอศิลป์", personality: "Introvert", type: "ศิลปะ", lat: "13.74", lng: "100.53", rating: "4.7", icon: "🎨", color: "#F3E5F5" },
+  ]);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfile, setEditProfile] = useState({ firstName: '', lastName: '', gender: '', email: '', profileImage: '' });
+  const [contactRequests, setContactRequests] = useState([
+    { id: 1, name: 'ณัฐพล', email: 'nut@example.com', message: 'อยากแนะนำสถานที่ใหม่', date: '2025-12-01', status: 'open' },
+    { id: 2, name: 'ปาริชาติ', email: 'pari@example.com', message: 'ระบบล็อกอินมีปัญหา', date: '2026-01-10', status: 'open' },
+  ]);
+  const [users, setUsers] = useState([
+    { id: 1, name: "Somchai Raidee", email: "somchai@email.com", status: "active", joinDate: "2024-01-15" },
+    { id: 2, name: "Mana Deeja", email: "mana@email.com", status: "banned", joinDate: "2024-02-10" },
+    { id: 3, name: "Somsri Happy", email: "somsri@email.com", status: "active", joinDate: "2024-03-01" },
+  ]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
-      const parsedUser = userData ? JSON.parse(userData) : null;
-      
-      // ตรวจสอบว่าเป็น admin หรือไม่
-      if (!parsedUser || (parsedUser.role !== "admin" && parsedUser.email !== "admin@gmail.com")) {
-        router.push("/login");
-      }
-      setUser(parsedUser);
+    setMounted(true);
+    const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
+    const parsedUser = userData ? JSON.parse(userData) : null;
+    
+    // ตรวจสอบว่าเป็น admin หรือไม่
+    if (!parsedUser || (parsedUser.role !== "admin" && parsedUser.email !== "admin@gmail.com")) {
+      router.push("/login");
+      return;
     }
+    setUser(parsedUser);
   }, [router]);
+
+  // Prevent rendering until auth check completes
+  if (!mounted || !user) {
+    return null;
+  }
 
   const handleLogout = () => {
     Swal.fire({
@@ -40,26 +65,6 @@ export default function AdminPage() {
       }
     });
   };
-  const [locations, setLocations] = useState([
-    { id: 1, name: "สวนป่าเบญจกิติ", personality: "Introvert", type: "ธรรมชาติ", lat: "13.73", lng: "100.55", rating: "4.8", icon: "🌿", color: "#E0F2F1" },
-    { id: 2, name: "Jodd Fairs", personality: "Extrovert", type: "ตลาดกลางคืน", lat: "13.75", lng: "100.56", rating: "4.5", icon: "🎡", color: "#FFF3E0" },
-    { id: 3, name: "BACC หอศิลป์", personality: "Introvert", type: "ศิลปะ", lat: "13.74", lng: "100.53", rating: "4.7", icon: "🎨", color: "#F3E5F5" },
-  ]);
-
-  const [showEditProfile, setShowEditProfile] = useState(false);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [editProfile, setEditProfile] = useState({ firstName: '', lastName: '', gender: '', email: '', profileImage: '' });
-
-  const [contactRequests, setContactRequests] = useState([
-    { id: 1, name: 'ณัฐพล', email: 'nut@example.com', message: 'อยากแนะนำสถานที่ใหม่', date: '2025-12-01', status: 'open' },
-    { id: 2, name: 'ปาริชาติ', email: 'pari@example.com', message: 'ระบบล็อกอินมีปัญหา', date: '2026-01-10', status: 'open' },
-  ]);
-
-  const [users, setUsers] = useState([
-    { id: 1, name: "Somchai Raidee", email: "somchai@email.com", status: "active", joinDate: "2024-01-15" },
-    { id: 2, name: "Mana Deeja", email: "mana@email.com", status: "banned", joinDate: "2024-02-10" },
-    { id: 3, name: "Somsri Happy", email: "somsri@email.com", status: "active", joinDate: "2024-03-01" },
-  ]);
 
   const typeMapping = {
     green: { label: 'ธรรมชาติ', icon: '🌳', color: '#E0F2F1' },
@@ -300,6 +305,17 @@ export default function AdminPage() {
     setShowEditProfile(false);
   };
 
+  const handleProfileFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setEditProfile(prev => ({ ...prev, profileImage: event.target?.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // ----- Contact requests handlers -----
   const handleReplyRequest = async (req) => {
     const { value: reply } = await Swal.fire({
@@ -357,7 +373,7 @@ export default function AdminPage() {
               <span style={{ fontSize: '18px' }}>👥</span>
               <span style={{ fontSize: '15px' }}>บัญชีผู้ใช้</span>
             </button>
-            <button onClick={() => setActiveTab('contact')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: 'transparent', color: '#64748B', fontWeight: 600 }}>
+            <button onClick={() => setActiveTab('contact')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: activeTab === 'contact' ? '#EEF2FF' : 'transparent', color: activeTab === 'contact' ? '#6D28D9' : '#64748B', fontWeight: activeTab === 'contact' ? 700 : 600 }}>
               <span style={{ fontSize: '18px' }}>✉️</span>
               <span style={{ fontSize: '15px' }}>คำร้องติดต่อ</span>
             </button>
@@ -517,70 +533,92 @@ export default function AdminPage() {
       </main>
 
       {showEditProfile && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,75,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
-          <div style={{ width: '550px', background: 'white', borderRadius: '32px', padding: '40px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', position: 'relative' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '28px' }}>
-              <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F97316' }}>
-                <img src={editProfile.profileImage || '/avatar-placeholder.png'} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <style>{`
+            .profile-modal-card { background: white; width: 100%; max-width: 500px; border-radius: 30px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); position: relative; }
+            .avatar-modal-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+            .avatar-modal-wrapper { position: relative; width: 120px; height: 120px; border-radius: 32px; overflow: hidden; margin-bottom: 15px; border: 4px solid #fff; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+            .avatar-modal-wrapper.editable { cursor: pointer; }
+            .avatar-modal-wrapper.editable:hover { transform: scale(1.05); }
+            .avatar-modal-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
+            .upload-overlay-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+            .avatar-modal-wrapper.editable:hover .upload-overlay-modal { opacity: 1; }
+            .field { margin-bottom: 16px; }
+            .field-label { font-size: 0.8rem; font-weight: 700; color: #64748B; margin-bottom: 6px; display: block; }
+            .input-box { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 15px; border: 1.5px solid #E2E8F0; background: #F8FAFC; transition: 0.2s; }
+            .input-box.editing { border-color: #6366F1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08); }
+            .input-box input, .input-box select { border: none; outline: none; width: 100%; background: transparent; font-size: 1rem; color: #1E293B; font-family: 'Mali', sans-serif; }
+            .input-box input:disabled, .input-box select:disabled { color: #64748B; opacity: 0.7; cursor: not-allowed; }
+            .btn-modal-group { display: flex; gap: 12px; margin-top: 30px; }
+            .btn-modal { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 15px; font-weight: 700; cursor: pointer; border: none; font-family: 'Mali', sans-serif; transition: 0.2s; }
+            .btn-modal:active { transform: scale(0.98); }
+            .btn-modal-primary { background: #1E1B4B; color: white; }
+            .btn-modal-primary:hover { background: #2d2a5f; box-shadow: 0 4px 12px rgba(30, 27, 75, 0.2); }
+            .btn-modal-secondary { background: #F1F5F9; color: #475569; }
+            .btn-modal-secondary:hover { background: #E2E8F0; }
+          `}</style>
+          <div className="profile-modal-card">
+            <button onClick={() => setShowEditProfile(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={24} /></button>
+            
+            <div className="avatar-modal-section">
+              <div className={`avatar-modal-wrapper ${isEditingProfile ? 'editable' : ''}`} onClick={() => isEditingProfile && fileInputRef.current?.click()}>
+                <img src={editProfile.profileImage || '/avatar-placeholder.png'} alt="Profile" />
+                {isEditingProfile && <div className="upload-overlay-modal"><Camera size={32} strokeWidth={1.5} /></div>}
               </div>
-              <h3 style={{ marginTop: '16px', fontSize: '24px', fontWeight: 800, color: '#1E293B' }}>{editProfile.firstName || 'User Name'}</h3>
-              <div style={{ color: '#3B82F6', fontSize: '14px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>✓ Verified Account</div>
+              <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleProfileFileChange} />
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E293B' }}>{editProfile.firstName || user?.firstName || 'User'} {editProfile.lastName || user?.lastName || ''}</h2>
+              <div style={{ color: '#6366F1', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={16} /> Verified Account</div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-              <div>
-                <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>ชื่อจริง</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>👤</span>
-                  <input disabled={!isEditingProfile} value={editProfile.firstName} onChange={(e)=>handleChangeProfile('firstName', e.target.value)} placeholder="User" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div className="field">
+                <span className="field-label">ชื่อจริง</span>
+                <div className={`input-box ${isEditingProfile ? 'editing' : ''}`}>
+                  <User size={18} color="#94A3B8" />
+                  <input disabled={!isEditingProfile} value={editProfile.firstName} onChange={(e)=>handleChangeProfile('firstName', e.target.value)} placeholder="First name" />
                 </div>
               </div>
-              <div>
-                <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>นามสกุล</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>👤</span>
-                  <input disabled={!isEditingProfile} value={editProfile.lastName} onChange={(e)=>handleChangeProfile('lastName', e.target.value)} placeholder="Name" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937' }} />
+              <div className="field">
+                <span className="field-label">นามสกุล</span>
+                <div className={`input-box ${isEditingProfile ? 'editing' : ''}`}>
+                  <User size={18} color="#94A3B8" />
+                  <input disabled={!isEditingProfile} value={editProfile.lastName} onChange={(e)=>handleChangeProfile('lastName', e.target.value)} placeholder="Last name" />
                 </div>
               </div>
             </div>
 
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>ระบุเพศ</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>⚥</span>
-                <select disabled={!isEditingProfile} value={editProfile.gender} onChange={(e)=>handleChangeProfile('gender', e.target.value)} style={{ width: '100%', padding: '12px 12px 12px 40px', paddingRight: '14px', borderRadius: '14px', border: '1px solid #D1D5DB', background: isEditingProfile ? 'white' : '#F5F5F5', fontSize: '14px', color: '#1F2937', appearance: 'none' }}>
-                  <option value="">ชาย</option>
-                  <option value="ชาย">ชาย</option>
-                  <option value="หญิง">หญิง</option>
-                  <option value="อื่นๆ">อื่นๆ</option>
+            <div className="field">
+              <span className="field-label">ระบุเพศ</span>
+              <div className={`input-box ${isEditingProfile ? 'editing' : ''}`}>
+                <VenusAndMars size={18} color="#94A3B8" />
+                <select disabled={!isEditingProfile} value={editProfile.gender} onChange={(e)=>handleChangeProfile('gender', e.target.value)} style={{ cursor: isEditingProfile ? 'pointer' : 'not-allowed' }}>
+                  <option value="">-- เลือกเพศ --</option>
+                  <option value="male">ชาย</option>
+                  <option value="female">หญิง</option>
+                  <option value="other">อื่นๆ</option>
                 </select>
-                <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }}>▼</span>
               </div>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '12px', color: '#4B5563', marginBottom: '8px', display: 'block', fontWeight: 600 }}>อีเมล</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#C4C4C4', fontSize: '16px' }}>✉️</span>
-                <input readOnly value={editProfile.email} placeholder="Username@example.com" style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '14px', border: '1px solid #D1D5DB', background: '#F5F5F5', fontSize: '14px', color: '#666666' }} />
+            <div className="field">
+              <span className="field-label">อีเมลติดต่อ (ดึงจากฐานข้อมูล)</span>
+              <div className="input-box" style={{ opacity: 0.8, backgroundColor: '#EDF2F7' }}>
+                <Mail size={18} color="#94A3B8" />
+                <input disabled style={{ cursor: 'not-allowed' }} value={editProfile.email} />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-start' }}>
-              {!isEditingProfile ? (
-                <>
-                  <button onClick={() => setIsEditingProfile(true)} style={{ flex: 1, padding: '14px 22px', borderRadius: '14px', background: '#1E1B4B', color: 'white', border: 'none', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>✏️ แก้ไขโปรไฟล์</button>
-                  <button onClick={handleCancelEditProfile} style={{ padding: '14px 22px', borderRadius: '14px', background: '#E5E7EB', color: '#6B7280', border: 'none', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>กลับหน้าหลัก</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={handleSaveProfile} style={{ flex: 1, padding: '14px 22px', borderRadius: '14px', background: '#1E1B4B', color: 'white', border: 'none', fontWeight: 800, fontSize: '15px', cursor: 'pointer' }}>ยืนยัน</button>
-                  <button onClick={() => { setIsEditingProfile(false); setEditProfile({ firstName: user?.firstName || '', lastName: user?.lastName || '', gender: user?.gender || '', email: user?.email || '', profileImage: user?.profileImage || '' }); }} style={{ padding: '14px 22px', borderRadius: '14px', background: '#E5E7EB', color: '#6B7280', border: 'none', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>ยกเลิก</button>
-                </>
-              )}
-            </div>
-
-            <button onClick={() => setShowEditProfile(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+            {!isEditingProfile ? (
+              <div className="btn-modal-group">
+                <button onClick={() => setIsEditingProfile(true)} className="btn-modal btn-modal-primary" style={{ fontFamily: "'Mali', sans-serif" }}><Edit3 size={18} /> แก้ไขโปรไฟล์</button>
+                <button onClick={handleCancelEditProfile} className="btn-modal btn-modal-secondary" style={{ fontFamily: "'Mali', sans-serif" }}>กลับหน้าหลัก</button>
+              </div>
+            ) : (
+              <div className="btn-modal-group">
+                <button onClick={handleSaveProfile} className="btn-modal btn-modal-primary" style={{ fontFamily: "'Mali', sans-serif" }}><Save size={18} /> บันทึกข้อมูล</button>
+                <button onClick={() => { setIsEditingProfile(false); setEditProfile({ firstName: user?.firstName || '', lastName: user?.lastName || '', gender: user?.gender || '', email: user?.email || '', profileImage: user?.profileImage || '' }); }} className="btn-modal btn-modal-secondary" style={{ color: '#E11D48', fontFamily: "'Mali', sans-serif" }}>ยกเลิก</button>
+              </div>
+            )}
           </div>
         </div>
       )}
