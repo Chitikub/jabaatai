@@ -1,4 +1,21 @@
+"use client";
+import { useState, useEffect } from "react";
+
 export default function LocationCard({ loc }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
+        const user = userData ? JSON.parse(userData) : null;
+        setIsAdmin(!!(user && (user.role === "admin" || user.email === "admin@gmail.com")));
+      } catch (e) {
+        setIsAdmin(false);
+      }
+    }
+  }, []);
+
   return (
     <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-md hover:shadow-2xl transition-shadow duration-500 group">
       <div className="relative h-56 w-full overflow-hidden">
@@ -7,9 +24,11 @@ export default function LocationCard({ loc }) {
           alt={loc.name} 
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
         />
-        <div className="absolute top-4 right-4 bg-white/70 backdrop-blur-md p-2 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer">
-          <span className="text-red-500">❤️</span>
-        </div>
+        {!isAdmin && (
+          <div className="absolute top-4 right-4 bg-white/70 backdrop-blur-md p-2 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer">
+            <span className="text-red-500">❤️</span>
+          </div>
+        )}
       </div>
       <div className="p-6">
         <div className="flex justify-between items-start mb-2">

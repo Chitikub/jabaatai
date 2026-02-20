@@ -1,9 +1,45 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("locations");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
+      const parsedUser = userData ? JSON.parse(userData) : null;
+      
+      // ตรวจสอบว่าเป็น admin หรือไม่
+      if (!parsedUser || (parsedUser.role !== "admin" && parsedUser.email !== "admin@gmail.com")) {
+        router.push("/login");
+      }
+      setUser(parsedUser);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: "ยืนยันการออกจากระบบ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#4F46E5",
+      confirmButtonText: "ออกจากระบบ",
+      cancelButtonText: "ยกเลิก",
+      reverseButtons: true,
+      borderRadius: "20px"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("user_profile");
+        router.push("/login");
+      }
+    });
+  };
   const [locations, setLocations] = useState([
     { id: 1, name: "สวนป่าเบญจกิติ", personality: "Introvert", type: "ธรรมชาติ", lat: "13.73", lng: "100.55", rating: "4.8", icon: "🌿", color: "#E0F2F1" },
     { id: 2, name: "Jodd Fairs", personality: "Extrovert", type: "ตลาดกลางคืน", lat: "13.75", lng: "100.56", rating: "4.5", icon: "🎡", color: "#FFF3E0" },
@@ -16,12 +52,6 @@ export default function AdminPage() {
     { id: 3, name: "Somsri Happy", email: "somsri@email.com", status: "active", joinDate: "2024-03-01" },
   ]);
 
-  // --- [ส่วนที่เพิ่ม: State สำหรับคำร้องติดต่อ] ---
-  const [inquiries, setInquiries] = useState([
-    { id: 1, sender: "K. Wichai", subject: "แจ้งลบสถานที่", message: "พิกัดคลาดเคลื่อนครับ", date: "2024-03-15", status: "pending", email: "wichai@email.com" },
-    { id: 2, sender: "K. Preeda", subject: "แนะนำฟีเจอร์", message: "อยากให้มี Dark Mode ค่ะ", date: "2024-03-14", status: "replied", email: "preeda@email.com" },
-  ]);
-
   const typeMapping = {
     green: { label: 'ธรรมชาติ', icon: '🌳', color: '#E0F2F1' },
     water: { label: 'แหล่งน้ำ', icon: '🌊', color: '#E1F5FE' },
@@ -30,68 +60,38 @@ export default function AdminPage() {
     general: { label: 'ทั่วไป', icon: '📍', color: '#F8FAFC' }
   };
 
-  const internalStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Mali:wght@300;400;500;600;700&display=swap');
-    body { margin: 0; font-family: 'Mali', sans-serif; background: #F8FAFC; }
-    .card-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #6366f1 !important; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .admin-wrapper ::-webkit-scrollbar { width: 6px; }
-    .admin-wrapper ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-  `;
-
-  // --- [ส่วนที่เพิ่ม: ฟังก์ชันจัดการคำร้องติดต่อ] ---
-  const handleViewInquiry = (inquiry) => {
-    Swal.fire({
-      title: `<span style="font-family:Mali;">📩 รายละเอียดคำร้อง</span>`,
-      html: `<div style="font-family:Mali; text-align:left;">
-              <p><b>จาก:</b> ${inquiry.sender}</p>
-              <p><b>หัวข้อ:</b> ${inquiry.subject}</p>
-              <hr><p>${inquiry.message}</p>
-             </div>`,
-      showCancelButton: true,
-      confirmButtonText: inquiry.status === 'pending' ? 'ตอบกลับแล้ว' : 'ปิด',
-      cancelButtonText: 'ลบ',
-      confirmButtonColor: '#10B981',
-    }).then((res) => {
-      if (res.isConfirmed && inquiry.status === 'pending') {
-        setInquiries(inquiries.map(i => i.id === inquiry.id ? { ...i, status: 'replied' } : i));
-      } else if (res.dismiss === Swal.DismissReason.cancel) {
-        setInquiries(inquiries.filter(i => i.id !== inquiry.id));
-      }
-    });
-  };
-
+  // --- ฟังก์ชันคงเดิม (ตามที่ขอ) ---
   const handleAddLocation = async () => {
     const { value: formValues } = await Swal.fire({
-      title: '<span style="font-family:Mali; font-weight:700; color:#1e1b4b;">✨ เพิ่มพิกัดใหม่</span>',
+      title: '<span style="font-family:Mali; font-weight:900; color:#1e1b4b;">✨ เพิ่มพิกัดใหม่</span>',
       background: '#ffffff',
       borderRadius: '30px',
       showCloseButton: true,
       confirmButtonText: 'บันทึกข้อมูล',
-      confirmButtonColor: '#6366f1',
+      confirmButtonColor: '#4F46E5',
       html: `
         <div style="font-family: 'Mali', sans-serif; text-align: left; padding: 10px;">
-          <label style="font-size: 14px; font-weight: bold; color: #6366f1;">ชื่อสถานที่</label>
-          <input id="swal-name" class="swal2-input" style="width: 100%; margin: 8px 0 20px 0; border-radius: 15px; font-family: Mali;" placeholder="ระบุชื่อสถานที่...">
+          <label style="font-size: 12px; font-weight: bold; color: #6366f1;">ชื่อสถานที่</label>
+          <input id="swal-name" class="swal2-input" style="width: 100%; margin: 8px 0 20px 0; border-radius: 15px;" placeholder="ระบุชื่อสถานที่...">
           <div style="display: flex; gap: 15px; margin-bottom: 20px;">
             <div style="flex: 1;">
               <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">LATITUDE</label>
-              <input id="swal-lat" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px; font-family: Mali;" placeholder="13.7xxx">
+              <input id="swal-lat" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px;" placeholder="13.7xxx">
             </div>
             <div style="flex: 1;">
               <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">LONGITUDE</label>
-              <input id="swal-lng" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px; font-family: Mali;" placeholder="100.5xxx">
+              <input id="swal-lng" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px;" placeholder="100.5xxx">
             </div>
           </div>
-          <label style="font-size: 14px; font-weight: bold; color: #94a3b8;">ประเภท & บุคลิก</label>
+          <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">ประเภท & บุคลิก</label>
           <div style="display: flex; gap: 10px; margin-top: 8px;">
-            <select id="swal-type" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px; font-family: Mali;">
+            <select id="swal-type" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px;">
                <option value="green">🌳 ธรรมชาติ</option>
                <option value="water">🌊 แหล่งน้ำ</option>
                <option value="cafe">☕ คาเฟ่</option>
                <option value="art">🎨 ศิลปะ</option>
             </select>
-            <select id="swal-perso" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px; font-family: Mali;">
+            <select id="swal-perso" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px;">
                <option value="Introvert">Introvert</option>
                <option value="Extrovert">Extrovert</option>
                <option value="Ambivert">Ambivert</option>
@@ -133,35 +133,35 @@ export default function AdminPage() {
   const handleEditLocation = async (loc) => {
     const currentTypeKey = Object.keys(typeMapping).find(key => typeMapping[key].label === loc.type) || 'green';
     const { value: formValues } = await Swal.fire({
-      title: '<span style="font-family:Mali; font-weight:700; color:#1e1b4b;">✏️ แก้ไขสถานที่</span>',
+      title: '<span style="font-family:Mali; font-weight:900; color:#1e1b4b;">✏️ แก้ไขข้อมูลสถานที่</span>',
       background: '#ffffff',
       borderRadius: '30px',
       showCloseButton: true,
       confirmButtonText: 'อัปเดตข้อมูล',
-      confirmButtonColor: '#6366f1',
+      confirmButtonColor: '#4F46E5',
       html: `
         <div style="font-family: 'Mali', sans-serif; text-align: left; padding: 10px;">
-          <label style="font-size: 14px; font-weight: bold; color: #6366f1;">ชื่อสถานที่</label>
-          <input id="edit-name" class="swal2-input" style="width: 100%; margin: 8px 0 20px 0; border-radius: 15px; font-family: Mali;" value="${loc.name}">
+          <label style="font-size: 12px; font-weight: bold; color: #6366f1;">ชื่อสถานที่</label>
+          <input id="edit-name" class="swal2-input" style="width: 100%; margin: 8px 0 20px 0; border-radius: 15px;" value="${loc.name}">
           <div style="display: flex; gap: 15px; margin-bottom: 20px;">
             <div style="flex: 1;">
               <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">LATITUDE</label>
-              <input id="edit-lat" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px; font-family: Mali;" value="${loc.lat}">
+              <input id="edit-lat" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px;" value="${loc.lat}">
             </div>
             <div style="flex: 1;">
               <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">LONGITUDE</label>
-              <input id="edit-lng" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px; font-family: Mali;" value="${loc.lng}">
+              <input id="edit-lng" class="swal2-input" style="width: 100%; margin: 8px 0 0 0; border-radius: 12px;" value="${loc.lng}">
             </div>
           </div>
-          <label style="font-size: 14px; font-weight: bold; color: #94a3b8;">ประเภท & บุคลิก</label>
+          <label style="font-size: 12px; font-weight: bold; color: #94a3b8;">ประเภท & บุคลิก</label>
           <div style="display: flex; gap: 10px; margin-top: 8px;">
-            <select id="edit-type" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px; font-family: Mali;">
+            <select id="edit-type" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px;">
                <option value="green" ${currentTypeKey === 'green' ? 'selected' : ''}>🌳 ธรรมชาติ</option>
                <option value="water" ${currentTypeKey === 'water' ? 'selected' : ''}>🌊 แหล่งน้ำ</option>
                <option value="cafe" ${currentTypeKey === 'cafe' ? 'selected' : ''}>☕ คาเฟ่</option>
                <option value="art" ${currentTypeKey === 'art' ? 'selected' : ''}>🎨 ศิลปะ</option>
             </select>
-            <select id="edit-perso" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px; font-family: Mali;">
+            <select id="edit-perso" class="swal2-input" style="flex: 1; margin: 0; border-radius: 12px; font-size: 14px;">
                <option value="Introvert" ${loc.personality === 'Introvert' ? 'selected' : ''}>Introvert</option>
                <option value="Extrovert" ${loc.personality === 'Extrovert' ? 'selected' : ''}>Extrovert</option>
                <option value="Ambivert" ${loc.personality === 'Ambivert' ? 'selected' : ''}>Ambivert</option>
@@ -186,22 +186,31 @@ export default function AdminPage() {
       const mapping = typeMapping[formValues.typeKey] || typeMapping.general;
       setLocations(locations.map(item => 
         item.id === loc.id 
-          ? { ...item, ...formValues, type: mapping.label, icon: mapping.icon, color: mapping.color } 
+          ? { 
+              ...item, 
+              name: formValues.name, 
+              lat: formValues.lat, 
+              lng: formValues.lng, 
+              personality: formValues.personality,
+              type: mapping.label,
+              icon: mapping.icon,
+              color: mapping.color
+            } 
           : item
       ));
-      Swal.fire({ icon: 'success', title: 'แก้ไขเรียบร้อย!', showConfirmButton: false, timer: 1000 });
+      Swal.fire({ icon: 'success', title: 'อัปเดตเรียบร้อย!', showConfirmButton: false, timer: 1000 });
     }
   };
 
   const handleDeleteLocation = (id, name) => {
     Swal.fire({
-      title: 'ลบสถานที่?',
-      text: `คุณแน่ใจไหมว่าต้องการลบ "${name}"`,
+      title: 'ยืนยันการลบ?',
+      text: `คุณกำลังจะลบ "${name}" ออกจากระบบ`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
+      confirmButtonText: 'ใช่, ลบเลย',
       cancelButtonText: 'ยกเลิก',
-      confirmButtonText: 'ยืนยันการลบ',
       borderRadius: '20px'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -215,182 +224,185 @@ export default function AdminPage() {
     const isBanning = user.status === "active";
     Swal.fire({
       title: isBanning ? '🚫 ระงับบัญชี?' : '🔓 ปลดระงับบัญชี?',
-      text: isBanning ? `ระงับการเข้าใช้งานของคุณ ${user.name}` : `คืนสิทธิ์ให้คุณ ${user.name}`,
+      text: isBanning ? `ผู้ใช้ ${user.name} จะไม่สามารถใช้งานระบบได้ชั่วคราว` : `คืนสิทธิ์การใช้งานให้คุณ ${user.name}`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: isBanning ? '#ef4444' : '#10b981',
-      confirmButtonText: 'ยืนยัน',
+      confirmButtonText: isBanning ? 'ใช่, ระงับเลย' : 'ใช่, ปลดระงับ',
       cancelButtonText: 'ยกเลิก',
       borderRadius: '20px'
     }).then((result) => {
       if (result.isConfirmed) {
         setUsers(users.map(u => u.id === user.id ? { ...u, status: isBanning ? "banned" : "active" } : u));
-        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1000 });
+        Swal.fire({ icon: 'success', title: 'ดำเนินการสำเร็จ!', showConfirmButton: false, timer: 1000 });
       }
     });
   };
 
-  const handleDeleteUser = (id, name) => {
+  const handleDeleteUser = (id) => {
     Swal.fire({
       title: 'ลบผู้ใช้ถาวร?',
-      text: `ข้อมูลของ "${name}" จะหายไปจากระบบทันที`,
+      text: "คุณจะไม่สามารถกู้คืนข้อมูลผู้ใช้รายนี้ได้!",
       icon: 'error',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      confirmButtonText: 'ใช่, ลบเลย',
-      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#1e1b4b',
+      confirmButtonText: 'ยกเลิก',
+      cancelButtonText: 'ใช่, ลบถาวร',
       borderRadius: '20px'
     }).then((result) => {
-      if (result.isConfirmed) {
+      if (result.dismiss === Swal.DismissReason.cancel) {
         setUsers(users.filter(u => u.id !== id));
         Swal.fire({ title: 'ลบแล้ว!', icon: 'success', timer: 1000, showConfirmButton: false });
       }
     });
   };
 
-  // --- [ย้าย DashboardView เข้ามาใน AdminPage เพื่อแก้ Error] ---
-  const DashboardView = () => (
-    <div style={{ animation: 'fadeIn 0.5s ease' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
-        <div style={{ background: '#EEF2FF', padding: '30px', borderRadius: '24px', border: '2px solid #DBEAFE' }}>
-          <p style={{ margin: 0, color: '#6366F1', fontWeight: 'bold' }}>📍 สถานที่ทั้งหมด</p>
-          <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{locations.length}</h1>
-        </div>
-        <div style={{ background: '#ECFDF5', padding: '30px', borderRadius: '24px', border: '2px solid #D1FAE5' }}>
-          <p style={{ margin: 0, color: '#10B981', fontWeight: 'bold' }}>👥 ผู้ใช้งานระบบ</p>
-          <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{users.length}</h1>
-        </div>
-        <div style={{ background: '#FFF1F2', padding: '30px', borderRadius: '24px', border: '2px solid #FFE4E6' }}>
-          <p style={{ margin: 0, color: '#E11D48', fontWeight: 'bold' }}>📩 ข้อความใหม่</p>
-          <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{inquiries.filter(i => i.status === 'pending').length}</h1>
-        </div>
-        <div style={{ background: '#FFF7ED', padding: '30px', borderRadius: '24px', border: '2px solid #FFEDD5' }}>
-          <p style={{ margin: 0, color: '#F59E0B', fontWeight: 'bold' }}>⭐ คะแนนเฉลี่ย</p>
-          <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>4.7</h1>
-        </div>
-      </div>
-      <div style={{ background: 'white', padding: '30px', borderRadius: '24px', border: '1px solid #E2E8F0' }}>
-        <h3 style={{ marginTop: 0 }}>รายการที่เพิ่มล่าสุด</h3>
-        {locations.slice(0, 3).map(loc => (
-          <div key={loc.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 0', borderBottom: '1px solid #F1F5F9' }}>
-            <span style={{ fontSize: '24px' }}>{loc.icon}</span>
+  return (
+    <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Mali, sans-serif' }}>
+
+      {/* Sidebar (left) */}
+      <aside style={{ width: '220px', background: '#FFFFFF', borderRight: '1px solid #EEF2FF', padding: '28px 18px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            <div style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '20px' }}>M</div>
             <div>
-              <div style={{ fontWeight: 'bold' }}>{loc.name}</div>
-              <div style={{ fontSize: '12px', color: '#94A3B8' }}>{loc.type} • {loc.personality}</div>
+              <div style={{ fontWeight: 900, fontSize: '16px', color: '#1E293B' }}>MOOD ADMIN</div>
+              <div style={{ fontSize: '12px', color: '#A5B4FC', fontWeight: '600' }}>แดชบอร์ด</div>
             </div>
           </div>
-        ))}
-        <button 
-          onClick={() => setActiveTab("locations")}
-          style={{ width: '100%', marginTop: '20px', padding: '12px', border: 'none', background: '#F8FAFC', borderRadius: '12px', cursor: 'pointer', fontFamily: 'Mali', color: '#6366F1' }}
-        >
-          ดูทั้งหมด →
-        </button>
-      </div>
-    </div>
-  );
 
-  return (
-    <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Mali' }}>
-      <style dangerouslySetInnerHTML={{ __html: internalStyles }} />
-
-      <aside style={{ width: '280px', background: '#FFFFFF', borderRight: '1px solid #E2E8F0', padding: '30px 20px', position: 'fixed', height: '100vh', zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
-          <div style={{ width: '40px', height: '40px', background: '#6366f1', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>M</div>
-          <span style={{ fontWeight: 700, fontSize: '20px', color: '#1E293B' }}>MOOD ADMIN</span>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '6px' }}>
+            <button onClick={() => setActiveTab("locations")} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: activeTab === 'locations' ? '#EEF2FF' : 'transparent', color: activeTab === 'locations' ? '#6D28D9' : '#64748B', fontWeight: activeTab === 'locations' ? 700 : 600 }}>
+              <span style={{ fontSize: '18px' }}>📍</span>
+              <span style={{ fontSize: '15px' }}>จัดการสถานที่</span>
+            </button>
+            <button onClick={() => setActiveTab("users")} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: activeTab === 'users' ? '#EEF2FF' : 'transparent', color: activeTab === 'users' ? '#6D28D9' : '#64748B', fontWeight: activeTab === 'users' ? 700 : 600 }}>
+              <span style={{ fontSize: '18px' }}>👥</span>
+              <span style={{ fontSize: '15px' }}>บัญชีผู้ใช้</span>
+            </button>
+            <button onClick={() => router.push('/contact')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', border: 'none', background: 'transparent', color: '#64748B', fontWeight: 600 }}>
+              <span style={{ fontSize: '18px' }}>✉️</span>
+              <span style={{ fontSize: '15px' }}>คำร้องติดต่อ</span>
+            </button>
+          </nav>
         </div>
-        <nav>
-          {[
-            { id: 'dashboard', label: 'หน้าหลัก', icon: '🏠' },
-            { id: 'locations', label: 'จัดการสถานที่', icon: '📍' },
-            { id: 'users', label: 'บัญชีผู้ใช้', icon: '👥' },
-            { id: 'inquiries', label: 'คำร้องติดต่อ', icon: '📩' }, // เพิ่ม Tab ใหม่
-          ].map((item) => (
-            <div 
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              style={{ 
-                padding: '14px 20px', borderRadius: '15px', cursor: 'pointer', marginBottom: '10px', transition: '0.2s',
-                background: activeTab === item.id ? '#EEF2FF' : 'transparent',
-                color: activeTab === item.id ? '#6366f1' : '#64748B',
-                fontWeight: activeTab === item.id ? 'bold' : 'normal',
-                display: 'flex', alignItems: 'center', gap: '12px'
-              }}
-            >
-              <span style={{fontSize:'20px'}}>{item.icon}</span> {item.label}
+
+        <div style={{ marginTop: 'auto' }}>
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <img 
+                src={user.profileImage || "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"} 
+                alt="Profile" 
+                style={{ width: '44px', height: '44px', borderRadius: '10px', objectFit: 'cover' }}
+                onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"; }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontWeight: '800', fontSize: '14px', color: '#1E293B' }}>{user.firstName}</div>
+                <div style={{ fontSize: '12px', color: '#94A3B8' }}>Admin</div>
+              </div>
             </div>
-          ))}
-        </nav>
+          )}
+
+          <div style={{ marginTop: '12px' }}>
+            <button onClick={handleLogout} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: 'none', background: '#FEE2E2', color: '#EF4444', fontWeight: '700', cursor: 'pointer' }}>🚪 ออกจากระบบ</button>
+          </div>
+        </div>
       </aside>
 
-      <main style={{ flex: 1, marginLeft: '280px', padding: '40px 60px' }}>
+      {/* Main Content: HCI - มีพื้นที่หายใจ (White Space) และโครงสร้างชัดเจน */}
+      <main style={{ flex: 1, padding: '40px 80px' }}>
+        
+        {/* Tab Header Section */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-          <div>
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1E293B', margin: 0 }}>
-              {activeTab === "dashboard" && "หน้าหลักแอดมิน 👋"}
-              {activeTab === "locations" && "จัดการสถานที่"}
-              {activeTab === "users" && "บัญชีผู้ใช้งาน"}
-              {activeTab === "inquiries" && "คำร้องติดต่อ 📩"}
+          <div style={{ position: 'relative' }}>
+            <h2 style={{ fontSize: '36px', fontWeight: 900, color: '#1E293B', margin: 0, background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {activeTab === "locations" ? "📍 จัดการสถานที่" : "👥 บัญชีผู้ใช้งาน"}
             </h2>
-            <p style={{ color: '#64748B', margin: '5px 0 0 0' }}>จัดการระบบ Mood Tracking</p>
+            <p style={{ color: '#64748B', margin: '12px 0 0 0', fontSize: '16px' }}>
+              {activeTab === "locations" ? `พบทั้งหมด ${locations.length} พิกัดในระบบ` : `มีผู้ใช้งานทั้งหมด ${users.length} ราย`}
+            </p>
           </div>
           {activeTab === "locations" && (
-            <button onClick={handleAddLocation} style={{ background: '#6366f1', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'Mali', boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)' }}>
-              + เพิ่มพิกัดใหม่
+            <button onClick={handleAddLocation} style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '16px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79, 70, 229, 0.35)', transition: '0.3s', fontSize: '15px' }} 
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-3px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              ✨ เพิ่มพิกัดใหม่
             </button>
           )}
         </div>
 
-        {activeTab === "dashboard" && <DashboardView />}
-
-        {activeTab === "locations" && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+        {/* Content Area */}
+        {activeTab === "locations" ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '28px' }}>
             {locations.map(loc => (
-              <div key={loc.id} className="card-item" style={{ background: 'white', borderRadius: '24px', padding: '20px', border: '1px solid #E2E8F0', transition: '0.3s' }}>
-                <div style={{ height: '150px', background: loc.color || '#F8FAFC', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', marginBottom: '15px' }}>
+              <div key={loc.id} className="card-item" style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '2px solid #E2E8F0', transition: '0.3s', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}>
+                <div style={{ height: '180px', background: loc.color || '#F8FAFC', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', marginBottom: '20px' }}>
                   {loc.icon}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: 'bold' }}>{loc.type}</span>
-                  <span style={{ fontSize: '12px', background: '#F1F5F9', padding: '2px 8px', borderRadius: '6px' }}>{loc.personality}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: 800, textTransform: 'uppercase' }}>{loc.type}</span>
+                  <span style={{ fontSize: '12px', background: '#F1F5F9', padding: '4px 10px', borderRadius: '8px', color: '#475569' }}>{loc.personality}</span>
                 </div>
-                <h4 style={{ fontSize: '18px', margin: '10px 0', color: '#1E293B' }}>{loc.name}</h4>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                  <button onClick={() => handleEditLocation(loc)} style={{ flex: 1, padding: '8px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', fontFamily: 'Mali', cursor: 'pointer' }}>แก้ไข</button>
-                  <button onClick={() => handleDeleteLocation(loc.id, loc.name)} style={{ padding: '8px 12px', borderRadius: '10px', border: 'none', background: '#FEE2E2', color: '#EF4444', cursor: 'pointer' }}>🗑️</button>
+                <h4 style={{ fontSize: '20px', fontWeight: 700, margin: '12px 0', color: '#1E293B' }}>{loc.name}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: '#64748B', fontSize: '14px' }}>
+                  <span>⭐ {loc.rating}</span>
+                  <span>📍 {loc.lat}, {loc.lng}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                  <button onClick={() => handleEditLocation(loc)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '2px solid #E2E8F0', background: 'white', fontWeight: 'bold', cursor: 'pointer', transition: '0.3s', color: '#4F46E5' }}
+                    onMouseEnter={(e) => { e.target.background = '#F1F5F9'; e.target.style.borderColor = '#4F46E5'; }}
+                    onMouseLeave={(e) => { e.target.background = 'white'; e.target.style.borderColor = '#E2E8F0'; }}
+                  >
+                    ✏️ แก้ไข
+                  </button>
+                  <button onClick={() => handleDeleteLocation(loc.id, loc.name)} style={{ width: '50px', borderRadius: '12px', border: '2px solid #FEE2E2', background: '#FEE2E2', color: '#EF4444', cursor: 'pointer', fontWeight: 'bold', transition: '0.3s' }}
+                    onMouseEnter={(e) => e.target.style.background = '#FECACA'}
+                    onMouseLeave={(e) => e.target.style.background = '#FEE2E2'}
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        )}
-
-        {activeTab === "users" && (
-          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+        ) : (
+          <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #E2E8F0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                  <th style={{ padding: '20px 24px' }}>ผู้ใช้งาน</th>
-                  <th style={{ padding: '20px 24px' }}>สถานะ</th>
-                  <th style={{ padding: '20px 24px', textAlign: 'center' }}>การจัดการ</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>ผู้ใช้งาน</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>สถานะ</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B' }}>วันที่เข้าร่วม</th>
+                  <th style={{ padding: '20px 24px', color: '#64748B', textAlign: 'center' }}>การจัดการ</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map(user => (
                   <tr key={user.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
                     <td style={{ padding: '20px 24px' }}>
-                      <div style={{ fontWeight: 'bold' }}>{user.name}</div>
+                      <div style={{ fontWeight: 'bold', color: '#1E293B' }}>{user.name}</div>
                       <div style={{ fontSize: '13px', color: '#94A3B8' }}>{user.email}</div>
                     </td>
                     <td style={{ padding: '20px 24px' }}>
-                      <span style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '12px', background: user.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: user.status === 'active' ? '#16A34A' : '#EF4444' }}>
-                        {user.status === 'active' ? 'ปกติ' : 'ระงับการใช้งาน'}
+                      <span style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', background: user.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: user.status === 'active' ? '#16A34A' : '#EF4444' }}>
+                        {user.status.toUpperCase()}
                       </span>
                     </td>
-                    <td style={{ padding: '20px 24px', textAlign: 'center' }}>
-                      <button onClick={() => handleToggleBan(user)} style={{ marginRight: '8px', padding: '6px 15px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', fontFamily: 'Mali', color: user.status === 'active' ? '#EF4444' : '#10B981' }}>
-                        {user.status === 'active' ? 'ระงับ' : 'ปลด'}
+                    <td style={{ padding: '20px 24px', color: '#64748B' }}>{user.joinDate}</td>
+                    <td style={{ padding: '24px', textAlign: 'center' }}>
+                      <button onClick={() => handleToggleBan(user)} style={{ marginRight: '10px', padding: '10px 18px', borderRadius: '10px', border: '2px solid #E2E8F0', background: 'white', cursor: 'pointer', color: user.status === 'active' ? '#EF4444' : '#10B981', fontWeight: 'bold', transition: '0.3s' }}
+                        onMouseEnter={(e) => e.target.style.background = user.status === 'active' ? '#FEE2E2' : '#DCFCE7'}
+                        onMouseLeave={(e) => e.target.style.background = 'white'}
+                      >
+                        {user.status === 'active' ? '🚫 ระงับ' : '🔓 ปลด'}
                       </button>
-                      <button onClick={() => handleDeleteUser(user.id, user.name)} style={{ padding: '6px 10px', borderRadius: '10px', border: 'none', background: '#F1F5F9', color: '#64748B', cursor: 'pointer' }}>🗑️</button>
+                      <button onClick={() => handleDeleteUser(user.id)} style={{ padding: '10px', borderRadius: '10px', border: '2px solid #F1F5F9', background: '#F1F5F9', cursor: 'pointer', transition: '0.3s' }}
+                        onMouseEnter={(e) => e.target.style.background = '#E2E8F0'}
+                        onMouseLeave={(e) => e.target.style.background = '#F1F5F9'}
+                      >
+                        🗑️
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -398,43 +410,23 @@ export default function AdminPage() {
             </table>
           </div>
         )}
-
-        {/* --- [ส่วนที่เพิ่ม: หน้าตารางคำร้องติดต่อ] --- */}
-        {activeTab === "inquiries" && (
-          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                  <th style={{ padding: '20px', textAlign: 'left' }}>หัวข้อ</th>
-                  <th style={{ padding: '20px', textAlign: 'left' }}>ผู้ส่ง</th>
-                  <th style={{ padding: '20px', textAlign: 'center' }}>สถานะ</th>
-                  <th style={{ padding: '20px', textAlign: 'center' }}>รายละเอียด</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inquiries.map(inq => (
-                  <tr key={inq.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '20px' }}>
-                      <div style={{ fontWeight: 'bold' }}>{inq.subject}</div>
-                      <div style={{ fontSize: '12px', color: '#94A3B8' }}>{inq.date}</div>
-                    </td>
-                    <td style={{ padding: '20px' }}>{inq.sender}</td>
-                    <td style={{ padding: '20px', textAlign: 'center' }}>
-                      <span style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '12px', background: inq.status === 'pending' ? '#FFFBEB' : '#F0FDF4', color: inq.status === 'pending' ? '#B45309' : '#15803D' }}>
-                        {inq.status === 'pending' ? 'รอดำเนินการ' : 'ตอบแล้ว'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '20px', textAlign: 'center' }}>
-                      <button onClick={() => handleViewInquiry(inq)} style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', fontFamily: 'Mali' }}>👁️ เปิดดู</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        
       </main>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Mali:wght@300;400;700;800&display=swap');
+        .card-item:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 35px -5px rgba(79, 70, 229, 0.15);
+          border-color: #4F46E5 !important;
+        }
+        .card-item {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+      `}</style>
     </div>
   );
 }
