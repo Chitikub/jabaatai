@@ -16,6 +16,12 @@ export default function AdminPage() {
     { id: 3, name: "Somsri Happy", email: "somsri@email.com", status: "active", joinDate: "2024-03-01" },
   ]);
 
+  // --- [ส่วนที่เพิ่ม: State สำหรับคำร้องติดต่อ] ---
+  const [inquiries, setInquiries] = useState([
+    { id: 1, sender: "K. Wichai", subject: "แจ้งลบสถานที่", message: "พิกัดคลาดเคลื่อนครับ", date: "2024-03-15", status: "pending", email: "wichai@email.com" },
+    { id: 2, sender: "K. Preeda", subject: "แนะนำฟีเจอร์", message: "อยากให้มี Dark Mode ค่ะ", date: "2024-03-14", status: "replied", email: "preeda@email.com" },
+  ]);
+
   const typeMapping = {
     green: { label: 'ธรรมชาติ', icon: '🌳', color: '#E0F2F1' },
     water: { label: 'แหล่งน้ำ', icon: '🌊', color: '#E1F5FE' },
@@ -24,28 +30,37 @@ export default function AdminPage() {
     general: { label: 'ทั่วไป', icon: '📍', color: '#F8FAFC' }
   };
 
-  // --- CSS สำหรับแก้ Hydration Error ---
   const internalStyles = `
     @import url('https://fonts.googleapis.com/css2?family=Mali:wght@300;400;500;600;700&display=swap');
-    
     body { margin: 0; font-family: 'Mali', sans-serif; background: #F8FAFC; }
-    
-    .card-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-      border-color: #6366f1 !important;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .card-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #6366f1 !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .admin-wrapper ::-webkit-scrollbar { width: 6px; }
     .admin-wrapper ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
   `;
 
-  // --- จัดการสถานที่ ---
+  // --- [ส่วนที่เพิ่ม: ฟังก์ชันจัดการคำร้องติดต่อ] ---
+  const handleViewInquiry = (inquiry) => {
+    Swal.fire({
+      title: `<span style="font-family:Mali;">📩 รายละเอียดคำร้อง</span>`,
+      html: `<div style="font-family:Mali; text-align:left;">
+              <p><b>จาก:</b> ${inquiry.sender}</p>
+              <p><b>หัวข้อ:</b> ${inquiry.subject}</p>
+              <hr><p>${inquiry.message}</p>
+             </div>`,
+      showCancelButton: true,
+      confirmButtonText: inquiry.status === 'pending' ? 'ตอบกลับแล้ว' : 'ปิด',
+      cancelButtonText: 'ลบ',
+      confirmButtonColor: '#10B981',
+    }).then((res) => {
+      if (res.isConfirmed && inquiry.status === 'pending') {
+        setInquiries(inquiries.map(i => i.id === inquiry.id ? { ...i, status: 'replied' } : i));
+      } else if (res.dismiss === Swal.DismissReason.cancel) {
+        setInquiries(inquiries.filter(i => i.id !== inquiry.id));
+      }
+    });
+  };
+
   const handleAddLocation = async () => {
     const { value: formValues } = await Swal.fire({
       title: '<span style="font-family:Mali; font-weight:700; color:#1e1b4b;">✨ เพิ่มพิกัดใหม่</span>',
@@ -233,9 +248,10 @@ export default function AdminPage() {
     });
   };
 
+  // --- [ย้าย DashboardView เข้ามาใน AdminPage เพื่อแก้ Error] ---
   const DashboardView = () => (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
         <div style={{ background: '#EEF2FF', padding: '30px', borderRadius: '24px', border: '2px solid #DBEAFE' }}>
           <p style={{ margin: 0, color: '#6366F1', fontWeight: 'bold' }}>📍 สถานที่ทั้งหมด</p>
           <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{locations.length}</h1>
@@ -243,6 +259,10 @@ export default function AdminPage() {
         <div style={{ background: '#ECFDF5', padding: '30px', borderRadius: '24px', border: '2px solid #D1FAE5' }}>
           <p style={{ margin: 0, color: '#10B981', fontWeight: 'bold' }}>👥 ผู้ใช้งานระบบ</p>
           <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{users.length}</h1>
+        </div>
+        <div style={{ background: '#FFF1F2', padding: '30px', borderRadius: '24px', border: '2px solid #FFE4E6' }}>
+          <p style={{ margin: 0, color: '#E11D48', fontWeight: 'bold' }}>📩 ข้อความใหม่</p>
+          <h1 style={{ margin: '10px 0 0 0', fontSize: '40px' }}>{inquiries.filter(i => i.status === 'pending').length}</h1>
         </div>
         <div style={{ background: '#FFF7ED', padding: '30px', borderRadius: '24px', border: '2px solid #FFEDD5' }}>
           <p style={{ margin: 0, color: '#F59E0B', fontWeight: 'bold' }}>⭐ คะแนนเฉลี่ย</p>
@@ -272,7 +292,6 @@ export default function AdminPage() {
 
   return (
     <div className="admin-wrapper" style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', fontFamily: 'Mali' }}>
-      {/* ใช้แท็ก style ปกติเพื่อเลี่ยงการสุ่ม Class จาก styled-jsx */}
       <style dangerouslySetInnerHTML={{ __html: internalStyles }} />
 
       <aside style={{ width: '280px', background: '#FFFFFF', borderRight: '1px solid #E2E8F0', padding: '30px 20px', position: 'fixed', height: '100vh', zIndex: 10 }}>
@@ -285,6 +304,7 @@ export default function AdminPage() {
             { id: 'dashboard', label: 'หน้าหลัก', icon: '🏠' },
             { id: 'locations', label: 'จัดการสถานที่', icon: '📍' },
             { id: 'users', label: 'บัญชีผู้ใช้', icon: '👥' },
+            { id: 'inquiries', label: 'คำร้องติดต่อ', icon: '📩' }, // เพิ่ม Tab ใหม่
           ].map((item) => (
             <div 
               key={item.id}
@@ -310,6 +330,7 @@ export default function AdminPage() {
               {activeTab === "dashboard" && "หน้าหลักแอดมิน 👋"}
               {activeTab === "locations" && "จัดการสถานที่"}
               {activeTab === "users" && "บัญชีผู้ใช้งาน"}
+              {activeTab === "inquiries" && "คำร้องติดต่อ 📩"}
             </h2>
             <p style={{ color: '#64748B', margin: '5px 0 0 0' }}>จัดการระบบ Mood Tracking</p>
           </div>
@@ -377,6 +398,42 @@ export default function AdminPage() {
             </table>
           </div>
         )}
+
+        {/* --- [ส่วนที่เพิ่ม: หน้าตารางคำร้องติดต่อ] --- */}
+        {activeTab === "inquiries" && (
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                  <th style={{ padding: '20px', textAlign: 'left' }}>หัวข้อ</th>
+                  <th style={{ padding: '20px', textAlign: 'left' }}>ผู้ส่ง</th>
+                  <th style={{ padding: '20px', textAlign: 'center' }}>สถานะ</th>
+                  <th style={{ padding: '20px', textAlign: 'center' }}>รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inquiries.map(inq => (
+                  <tr key={inq.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '20px' }}>
+                      <div style={{ fontWeight: 'bold' }}>{inq.subject}</div>
+                      <div style={{ fontSize: '12px', color: '#94A3B8' }}>{inq.date}</div>
+                    </td>
+                    <td style={{ padding: '20px' }}>{inq.sender}</td>
+                    <td style={{ padding: '20px', textAlign: 'center' }}>
+                      <span style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '12px', background: inq.status === 'pending' ? '#FFFBEB' : '#F0FDF4', color: inq.status === 'pending' ? '#B45309' : '#15803D' }}>
+                        {inq.status === 'pending' ? 'รอดำเนินการ' : 'ตอบแล้ว'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '20px', textAlign: 'center' }}>
+                      <button onClick={() => handleViewInquiry(inq)} style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', fontFamily: 'Mali' }}>👁️ เปิดดู</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        
       </main>
     </div>
   );
