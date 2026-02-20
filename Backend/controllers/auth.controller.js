@@ -3,7 +3,7 @@ const User = require("../models/User");
 // --- Controller สำหรับ Signup ---
 exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, gender, role } = req.body;
+    const { firstName, lastName, email, password, gender } = req.body;
 
     if (!firstName || !lastName || !email || !password || !gender) {
       return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบทุกช่อง" });
@@ -14,18 +14,15 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ error: "อีเมลนี้ถูกใช้งานไปแล้วในระบบ" });
     }
 
-    // ตั้งค่า role - ถ้าส่งมาจาก request ให้ใช้ค่านั้น ไม่งั้นใช้ 'user' เป็น default
-    // (สำหรับ testing ใน Postman ได้)
-    const userRole = (role === 'admin' || role === 'user') ? role : 'user';
-
-    // สร้าง User ใหม่
+    // สร้าง User ใหม่ - FORCE role เป็น 'user' เสมอ (ไม่ว่า request ส่งอะไรมา)
+    // การเป็น admin ต้องผ่าน promote API เท่านั้น
     const newUser = new User({
       firstName,
       lastName,
       email,
       password,
       gender,
-      role: userRole,
+      role: "user",  // ← FIXED: ตั้งค่าเป็น 'user' เสมอ
     });
     await newUser.save();
 

@@ -21,7 +21,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"gender\": \"not-specified\",\n  \"role\": \"user\"\n}"
+          "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"gender\": \"not-specified\"\n}"
         },
         "url": { "raw": "http://localhost:5000/api/signup", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","signup"] }
       }
