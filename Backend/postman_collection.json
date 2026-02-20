@@ -83,6 +83,42 @@
         },
         "url": { "raw": "http://localhost:5000/api/promote", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","promote"] }
       }
+    },
+    {
+      "name": "Add Favorite",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer <TOKEN>" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"<USER_ID>\",\n  \"locationId\": \"loc123\",\n  \"name\": \"Green Forest\",\n  \"type\": \"forest\",\n  \"description\": \"Beautiful forest with fresh air\",\n  \"image\": \"https://example.com/forest.jpg\"\n}"
+        },
+        "url": { "raw": "http://localhost:5000/api/favorite", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","favorite"] }
+      }
+    },
+    {
+      "name": "Get Favorites",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer <TOKEN>" }],
+        "url": { "raw": "http://localhost:5000/api/favorite/:userId", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","favorite",":userId"], "variable": [{ "key": "userId", "value": "<USER_ID>" }] }
+      }
+    },
+    {
+      "name": "Remove Favorite",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer <TOKEN>" }],
+        "url": { "raw": "http://localhost:5000/api/favorite/:favoriteId", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","favorite",":favoriteId"], "variable": [{ "key": "favoriteId", "value": "<FAVORITE_ID>" }] }
+      }
+    },
+    {
+      "name": "Check if Favorite",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer <TOKEN>" }],
+        "url": { "raw": "http://localhost:5000/api/favorite/check?userId=<USER_ID>&locationId=loc123", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api","favorite","check"], "query": [{ "key": "userId", "value": "<USER_ID>" }, { "key": "locationId", "value": "loc123" }] }
+      }
     }
   ]
 }

@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
 const profileRoutes = require('./routes/profile.routes');
 const historyRoutes = require('./routes/history.routes');
+const favoriteRoutes = require('./routes/favorite.routes');
 const userRoutes = require('./routes/user.routes');
 
 const app = express();
@@ -23,6 +24,8 @@ app.use('/api', authRoutes);
 app.use('/api/profile', profileRoutes);
 // History routes
 app.use('/api/history', historyRoutes);
+// Favorite routes
+app.use('/api/favorite', favoriteRoutes);
 // User routes (promote)
 app.use('/api', userRoutes);
 
