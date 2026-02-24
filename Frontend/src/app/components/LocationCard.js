@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 export default function LocationCard({ loc }) {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -10,6 +11,7 @@ export default function LocationCard({ loc }) {
         const userData =
           localStorage.getItem("user_profile") || localStorage.getItem("user");
         const user = userData ? JSON.parse(userData) : null;
+        setIsLoggedIn(!!user);
         setIsAdmin(!!(user && user.role === "admin"));
       } catch (e) {
         setIsAdmin(false);
@@ -25,7 +27,7 @@ export default function LocationCard({ loc }) {
           alt={loc.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        {!isAdmin && (
+        {isLoggedIn && !isAdmin && (
           <div className="absolute top-4 right-4 bg-white/70 backdrop-blur-md p-2 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer">
             <span className="text-red-500">❤️</span>
           </div>

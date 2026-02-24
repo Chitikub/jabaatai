@@ -102,9 +102,11 @@ export default function Navbar() {
           <a href="/guide" style={navButtonStyle} className="nav-btn">
             คู่มือใช้งาน
           </a>
-          <a href="/contact" style={navButtonStyle} className="nav-btn">
-            ติดต่อ
-          </a>
+          {user && (
+            <a href="/contact" style={navButtonStyle} className="nav-btn">
+              ติดต่อ
+            </a>
+          )}
           <div style={dividerVerticalStyle}></div>
 
           {user ? (
@@ -144,8 +146,8 @@ export default function Navbar() {
                   src={
                     user.profileImage ||
                     "https://ui-avatars.com/api/?name=" +
-                      user.firstName +
-                      "&background=6D28D9&color=fff"
+                    user.firstName +
+                    "&background=6D28D9&color=fff"
                   }
                   alt="Profile"
                   style={avatarStyle}
@@ -174,8 +176,8 @@ export default function Navbar() {
                       src={
                         user.profileImage ||
                         "https://ui-avatars.com/api/?name=" +
-                          user.firstName +
-                          "&background=6D28D9&color=fff"
+                        user.firstName +
+                        "&background=6D28D9&color=fff"
                       }
                       alt="Profile"
                       style={avatarLargeStyle}

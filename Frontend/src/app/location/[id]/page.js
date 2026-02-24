@@ -16,6 +16,7 @@ export default function LocationDetailPage() {
   const router = useRouter();
   const [location, setLocation] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     // จำลองข้อมูล (ในอนาคตควรดึงจาก API หรือฐานข้อมูล)
@@ -41,6 +42,10 @@ export default function LocationDetailPage() {
 
     const savedFavs = JSON.parse(localStorage.getItem("favorites") || "[]");
     setIsFavorite(savedFavs.some((item) => item.id === id));
+
+    // ตรวจสอบว่าผู้ใช้เข้าสู่ระบบหรือยัง
+    const userData = localStorage.getItem("user_profile") || localStorage.getItem("user");
+    setIsLoggedIn(!!userData);
   }, [id]);
 
   const toggleFavorite = () => {
@@ -134,16 +139,18 @@ export default function LocationDetailPage() {
               padding: "12px",
             }}
           >
-            <button
-              style={{
-                ...favBtnInside,
-                color: isFavorite ? "#EF4444" : "#1E1B4B",
-              }}
-              onClick={toggleFavorite}
-              className="action-btn"
-            >
-              <Heart size={22} fill={isFavorite ? "#EF4444" : "none"} />
-            </button>
+            {isLoggedIn && (
+              <button
+                style={{
+                  ...favBtnInside,
+                  color: isFavorite ? "#EF4444" : "#1E1B4B",
+                }}
+                onClick={toggleFavorite}
+                className="action-btn"
+              >
+                <Heart size={22} fill={isFavorite ? "#EF4444" : "none"} />
+              </button>
+            )}
 
             <img
               src={location.images[0]}
@@ -188,18 +195,20 @@ export default function LocationDetailPage() {
 
             <p style={descText}>{location.fullDetail}</p>
 
-            <button
-              onClick={handleNavigation}
-              style={mapBtnStyle}
-              className="action-btn"
-            >
-              <Navigation2
-                size={18}
-                fill="white"
-                style={{ marginRight: "8px" }}
-              />
-              นำทางไปพิกัดนี้
-            </button>
+            {isLoggedIn && (
+              <button
+                onClick={handleNavigation}
+                style={mapBtnStyle}
+                className="action-btn"
+              >
+                <Navigation2
+                  size={18}
+                  fill="white"
+                  style={{ marginRight: "8px" }}
+                />
+                นำทางไปพิกัดนี้
+              </button>
+            )}
           </div>
         </div>
       </div>
