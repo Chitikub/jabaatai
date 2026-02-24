@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
       email,
       password,
       gender,
-      role: "user",  // ← FIXED: ตั้งค่าเป็น 'user' เสมอ
+      role: "user", // ← FIXED: ตั้งค่าเป็น 'user' เสมอ
     });
     await newUser.save();
 
@@ -42,11 +42,62 @@ exports.signup = async (req, res) => {
     });
   } catch (err) {
     console.error("Signup Error Details:", err);
-    res
-      .status(400)
-      .json({
-        error: err.message || "เกิดข้อผิดพลาดในการลงทะเบียน",
-      });
+    res.status(400).json({
+      error: err.message || "เกิดข้อผิดพลาดในการลงทะเบียน",
+    });
+  }
+};
+
+// --- Controller สำหรับ Signup Admin (ต้องใช้ Secret Key) ---
+exports.signupAdmin = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, gender, adminSecret } =
+      req.body;
+
+    // ตรวจสอบ Secret Key
+    if (!adminSecret || adminSecret !== process.env.SECRET) {
+      return res.status(403).json({ error: "Secret Key ไม่ถูกต้อง" });
+    }
+
+    if (!firstName || !lastName || !email || !password || !gender) {
+      return res.status(400).json({ error: "กรุณากรอกข้อมูลให้ครบทุกช่อง" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "อีเมลนี้ถูกใช้งานไปแล้วในระบบ" });
+    }
+
+    // สร้าง User ใหม่ - ตั้งค่า role เป็น 'admin'
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password,
+      gender,
+      role: "admin", // ← ตั้งค่าเป็น 'admin' เมื่อใช้ endpoint นี้
+    });
+    await newUser.save();
+
+    // สร้าง Token สำหรับ Admin ใหม่
+    const token = newUser.generateToken();
+
+    res.status(201).json({
+      message: "สร้าง Admin สำเร็จ! 🎉",
+      token,
+      user: {
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
+  } catch (err) {
+    console.error("Signup Admin Error Details:", err);
+    res.status(400).json({
+      error: err.message || "เกิดข้อผิดพลาดในการสร้าง Admin",
+    });
   }
 };
 
