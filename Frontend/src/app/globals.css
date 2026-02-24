@@ -3,36 +3,39 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-color: #f4f7ff;
+  --primary-glow: rgba(99, 102, 241, 0.15);
+  --secondary-glow: rgba(236, 72, 153, 0.15);
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  /* ใช้ min-height เพื่อให้สีครอบคลุมทั้งหน้าจอแม้เนื้อหาน้อย */
-  min-height: 100vh; 
+  min-height: 100vh;
+  /* ย้ายสีจากหน้า Page มาไว้ที่นี่ */
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(at 10% 20%, var(--primary-glow) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, var(--secondary-glow) 0px, transparent 50%);
+  background-attachment: fixed;
+  animation: floatBg 20s ease-in-out infinite alternate;
 }
 
-* {
-  font-family: inherit;
+@keyframes floatBg {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
 }
 
-body {
-  /* ใส่ !important เพื่อบังคับให้สีเปลี่ยนแน่นอน */
-  background-color: #F8F9FF;
-  background-attachment: fixed; /* ล็อกพื้นหลังไม่ให้เลื่อนตามการ Scroll */
+/* คงส่วน blob ไว้ถ้าต้องการใช้เสริม */
+.blob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
 }
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
-}
-
-.shake {
-  animation: shake 0.3s ease-in-out;
-}
-
-.error-input {
-  border-color: #ef4444 !important;
-  background-color: #fef2f2 !important;
-}
-
