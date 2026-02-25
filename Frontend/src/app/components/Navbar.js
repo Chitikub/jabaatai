@@ -55,20 +55,14 @@ export default function Navbar() {
 
   const handleLogout = () => {
     Swal.fire({
-      title: `<span style="font-size:1.25rem; font-weight:700; color:#0F172A">ยืนยันการออกจากระบบ?</span>`,
-      html: `<span style="color:#64748B; font-size:0.95rem">ไว้แวะมาหาที่พักใจใหม่นะครับ ✨</span>`,
-      icon: "question",
+      title: "ยืนยันการออกจากระบบ?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#0F172A", // สีเดียวกับปุ่ม Home
-      cancelButtonColor: "#F1F5F9",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#10B981",
       confirmButtonText: "ออกจากระบบ",
-      cancelButtonText: "<span style='color:#475569; font-weight:600'>ยกเลิก</span>",
+      cancelButtonText: "ยกเลิก",
       reverseButtons: true,
-      width: '400px',
-      padding: '2em',
-      borderRadius: "24px",
-      background: '#fff',
-      backdrop: `rgba(15, 23, 42, 0.4)`,
       customClass: { popup: "swal-rounded" },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -84,218 +78,91 @@ export default function Navbar() {
   return (
     <div style={wrapperStyle}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
-        
-        /* Typography */
-        .nav-font { font-family: 'IBM Plex Sans Thai', 'Plus Jakarta Sans', sans-serif; }
-
-        /* Swal Custom */
-        .swal-rounded { border-radius: 24px !important; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15) !important; }
-        
-        /* Navbar Links */
-        .nav-btn { position: relative; transition: color 0.3s ease; }
-        .nav-btn:hover { color: #0F172A !important; }
-        .nav-btn::after {
-          content: ''; position: absolute; width: 0; height: 2px; display: block;
-          margin-top: 4px; right: 0; background: #0F172A; transition: width 0.3s ease; border-radius: 2px;
-        }
-        .nav-btn:hover::after { width: 100%; left: 0; background: #0F172A; }
-
-        /* Signup Button (Slate/Dark Theme) */
-        .signup-slate-btn {
-          background: #0F172A;
-          color: white;
-          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .signup-slate-btn:hover { 
-          background: #334155; 
-          transform: translateY(-2px); 
-          box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3); 
-        }
-        
-        /* Logo Hover */
-        .logo-hover { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .swal-rounded { border-radius: 30px !important; }
+        .nav-btn:hover { background-color: #F3F4F6; transform: translateY(-1px); }
+        .signup-purple-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(109, 40, 217, 0.3); }
+        .logo-hover { transition: transform 0.3s ease; }
         .logo-hover:hover { transform: scale(1.05); }
-        
-        /* Heart Icon */
-        .heart-icon-btn { 
-          background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 50%;
-          padding: 8px; cursor: pointer; display: flex; align-items: center; 
-          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .heart-icon-btn:hover { transform: scale(1.1); background: #FEF2F2; border-color: #FECACA; }
-        .heart-active { animation: heartBeat 2s infinite; }
-
-        /* Dropdown Menu & Items */
-        .dropdown-menu-anim { 
-          animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-          transform-origin: top right; 
-        }
-        .dropdown-item { position: relative; overflow: hidden; }
-        .dropdown-item:hover { background-color: #F8FAFC; transform: translateX(4px); color: #0F172A !important; }
-        .admin-item:hover { background-color: #F8FAFC; color: #0F172A !important; transform: translateX(4px); }
-
-        /* Keyframes */
-        @keyframes slideDown {
-          0% { opacity: 0; transform: translateY(-10px) scale(0.98); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes heartBeat {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
+        .heart-icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; transition: all 0.3s; position: relative; }
+        .heart-icon-btn:hover { transform: scale(1.2); }
+        .admin-item:hover { background-color: #F5F3FF; color: #7C3AED !important; }
+        .dropdown-item:hover { background-color: #F8FAFC; }
       `}</style>
 
-      <nav style={navContainerStyle} className="nav-font">
-        <div
-          onClick={handleLogoClick}
-          className="logo-hover"
-          style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-        >
+      <nav style={navContainerStyle}>
+        <div onClick={handleLogoClick} className="logo-hover" style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
           <img src="/logo.png" alt="Logo" style={logoImgStyle} />
         </div>
 
-        <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-          <a href="/guide" style={navButtonStyle} className="nav-btn">
-            คู่มือใช้งาน
-          </a>
-          {user && (
-            <a href="/contact" style={navButtonStyle} className="nav-btn">
-              ติดต่อเรา
-            </a>
-          )}
+        <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+          <a href="/guide" style={navButtonStyle} className="nav-btn">คู่มือใช้งาน</a>
+          <a href="/contact" style={navButtonStyle} className="nav-btn">ติดต่อ</a>
           <div style={dividerVerticalStyle}></div>
 
           {user ? (
-            <div
-              ref={dropdownRef}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                position: "relative",
-              }}
-            >
-              {/* ปุ่ม Favorite */}
-              <button
-                onClick={() => router.push("/favorites?tab=favorites")}
-                className={`heart-icon-btn ${hasFavorites ? "heart-active" : ""}`}
-              >
-                <svg
-                  width="20" height="20" viewBox="0 0 24 24"
-                  fill={hasFavorites ? "#EF4444" : "none"}
-                  stroke={hasFavorites ? "#EF4444" : "#64748B"}
-                  strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-                >
+            <div ref={dropdownRef} style={{ display: "flex", alignItems: "center", gap: "15px", position: "relative" }}>
+              <button onClick={() => router.push("/favorites?tab=favorites")} className="heart-icon-btn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill={hasFavorites ? "#EF4444" : "none"} stroke={hasFavorites ? "#EF4444" : "#4B5563"} strokeWidth="2.2">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.05 3 5.5l7 7Z" />
                 </svg>
               </button>
 
-              {/* Profile Trigger */}
               <div
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                style={{
-                  ...profileTriggerStyle,
-                  backgroundColor: isProfileOpen ? "#F1F5F9" : "transparent",
-                  borderColor: isProfileOpen ? "#E2E8F0" : "transparent",
-                }}
+                style={{ ...profileTriggerStyle, backgroundColor: isProfileOpen ? "#EDE9FE" : "#F3F4F6" }}
               >
                 <img
-                  src={
-                    user.profileImage ||
-                    "https://ui-avatars.com/api/?name=" +
-                    user.firstName +
-                    "&background=0F172A&color=fff&bold=true"
-                  }
+                  src={user.profileImage || "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"}
                   alt="Profile"
                   style={avatarStyle}
-                  onError={(e) => {
-                    e.target.src =
-                      "https://ui-avatars.com/api/?name=" +
-                      user.firstName +
-                      "&background=0F172A&color=fff&bold=true";
-                  }}
+                  onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"; }}
                 />
-                <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#334155" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "700", color: "#4B5563" }}>
                   {user.firstName || "สมาชิก"}
                 </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "0.3s", transform: isProfileOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
               </div>
 
-              {/* Dropdown Menu */}
               {isProfileOpen && (
-                <div className="dropdown-menu-anim" style={dropdownMenuStyle}>
+                <div style={dropdownMenuStyle}>
                   <div style={dropdownHeaderStyle}>
                     <img
-                      src={
-                        user.profileImage ||
-                        "https://ui-avatars.com/api/?name=" +
-                        user.firstName +
-                        "&background=0F172A&color=fff&bold=true"
-                      }
+                      src={user.profileImage || "https://ui-avatars.com/api/?name=" + user.firstName + "&background=6D28D9&color=fff"}
                       alt="Profile"
                       style={avatarLargeStyle}
                     />
-                    <div style={{ fontWeight: "700", marginTop: "12px", color: "#0F172A", fontSize: "1.05rem" }}>
-                      {user.firstName}
-                    </div>
-                    <div style={{ fontSize: "0.8rem", color: "#64748B", marginTop: "2px" }}>
-                      {user.email}
-                    </div>
+                    <div style={{ fontWeight: "800", marginTop: "10px", color: "#1E1B4B", fontSize: "1rem" }}>{user.firstName}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#94A3B8" }}>{user.email}</div>
                   </div>
-
+                  
                   <hr style={dropdownDividerStyle} />
-
-                  <div
-                    onClick={() => { router.push("/profile"); setIsProfileOpen(false); }}
-                    className="dropdown-item"
-                    style={dropdownItemStyle}
-                  >
-                    <span style={{marginRight: '10px', fontSize: '1.1rem'}}>👤</span> โปรไฟล์ส่วนตัว
-                  </div>
-                  <div
-                    onClick={() => { router.push("/history"); setIsProfileOpen(false); }}
-                    className="dropdown-item"
-                    style={dropdownItemStyle}
-                  >
-                    <span style={{marginRight: '10px', fontSize: '1.1rem'}}>🕒</span> ประวัติการใช้งาน
-                  </div>
-
-                  {/* Admin Badge */}
-                  {user?.role === "admin" && (
+                  
+                  <div onClick={() => { router.push("/profile"); setIsProfileOpen(false); }} className="dropdown-item" style={dropdownItemStyle}>โปรไฟล์</div>
+                  <div onClick={() => { router.push("/history"); setIsProfileOpen(false); }} className="dropdown-item" style={dropdownItemStyle}>ประวัติการใช้งาน</div>
+                  
+                  {/* ===== ส่วน Admin Dashboard (เพิ่มใหม่) ===== */}
+                  {(user?.role === "admin" || user?.email === "admin@gmail.com") && (
                     <>
                       <hr style={dropdownDividerStyle} />
-                      <div
-                        onClick={() => { router.push("/admin"); setIsProfileOpen(false); }}
+                      <div 
+                        onClick={() => { router.push("/admin"); setIsProfileOpen(false); }} 
                         className="admin-item"
-                        style={{ ...dropdownItemStyle, color: "#0F172A", fontWeight: "700" }}
+                        style={{ ...dropdownItemStyle, color: "#7C3AED", fontWeight: "800" }}
                       >
-                        <span style={{marginRight: '10px', fontSize: '1.1rem'}}>⚡</span> Admin Dashboard
+                         ⚙️ Admin Dashboard
                       </div>
                     </>
                   )}
+                  {/* ======================================= */}
 
                   <hr style={dropdownDividerStyle} />
-                  <div
-                    onClick={handleLogout}
-                    className="dropdown-item"
-                    style={{ ...dropdownItemStyle, color: "#EF4444" }}
-                  >
-                    <span style={{marginRight: '10px', fontSize: '1.1rem'}}>🚪</span> ออกจากระบบ
-                  </div>
+                  <div onClick={handleLogout} className="dropdown-item" style={{ ...dropdownItemStyle, color: "#EF4444" }}>ออกจากระบบ</div>
                 </div>
               )}
             </div>
           ) : (
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <a href="/login" style={loginLinkStyle} className="nav-btn">
-                เข้าสู่ระบบ
-              </a>
-              <a href="/signup" className="signup-slate-btn" style={signupBtnStyle}>
-                เริ่มต้นใช้งาน
-              </a>
+            <div style={{ display: "flex", gap: "15px" }}>
+              <a href="/login" style={loginLinkStyle}>Login</a>
+              <a href="/signup" className="signup-purple-btn" style={signupBtnStyle}>Get Started</a>
             </div>
           )}
         </div>
@@ -304,140 +171,18 @@ export default function Navbar() {
   );
 }
 
-// --- Styles ---
-const wrapperStyle = {
-  position: "fixed",
-  top: "20px",
-  left: 0,
-  right: 0,
-  display: "flex",
-  justifyContent: "center",
-  zIndex: 1000,
-  padding: "0 20px",
-  pointerEvents: "none", // ให้คลิกทะลุพื้นที่ว่างข้างๆ Navbar ได้
-};
-
-const navContainerStyle = {
-  pointerEvents: "auto", 
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "8px 24px",
-  
-  // 1. ใช้สีพื้นหลังเดียวกับ globals.css (#F8F9FF) แต่ทำให้โปร่งแสง (Opacity 0.7)
-  backgroundColor: "rgba(248, 249, 255, 0.7)", 
-  
-  // 2. ใช้การเบลอเพื่อดึงสีจาก Blob ข้างหลังขึ้นมาผสม
-  backdropFilter: "blur(20px) saturate(150%)", 
-  WebkitBackdropFilter: "blur(20px) saturate(150%)",
-  
-  // 3. เส้นขอบบางๆ สีขาว เพื่อให้ดูมีมิติกระจก
-  border: "1px solid rgba(255, 255, 255, 0.6)",
-  
-  // 4. เงาบางๆ สี Slate เพื่อให้เข้ากับสีกรมท่าของปุ่ม
-  boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.05)", 
-
-  borderRadius: "100px",
-  width: "100%",
-  maxWidth: "1000px",
-};
-
-const logoImgStyle = { height: "40px", width: "auto", cursor: "pointer", objectFit: "contain" };
-
-const navButtonStyle = {
-  textDecoration: "none",
-  color: "#64748B",
-  fontSize: "0.95rem",
-  fontWeight: "600",
-  padding: "8px 4px",
-};
-
-const dividerVerticalStyle = {
-  height: "20px",
-  width: "1px",
-  backgroundColor: "rgba(226, 232, 240, 0.8)",
-  margin: "0 10px",
-  
-};
-
-const profileTriggerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  padding: "4px 14px 4px 4px",
-  borderRadius: "100px",
-  cursor: "pointer",
-  border: "1px solid transparent",
-  transition: "all 0.3s ease",
-};
-
-const avatarStyle = {
-  width: "36px",
-  height: "36px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  border: "2px solid #fff",
-};
-
-const avatarLargeStyle = {
-  width: "60px",
-  height: "60px",
-  borderRadius: "50%",
-  objectFit: "cover",
-  border: "2px solid #E2E8F0",
-};
-
-const loginLinkStyle = {
-  textDecoration: "none",
-  color: "#475569",
-  fontSize: "0.95rem",
-  fontWeight: "600",
-  padding: "10px 16px",
-};
-
-const signupBtnStyle = {
-  padding: "10px 24px",
-  borderRadius: "100px",
-  textDecoration: "none",
-  fontSize: "0.95rem",
-  fontWeight: "600",
-};
-
-const dropdownMenuStyle = {
-  position: "absolute",
-  top: "calc(100% + 15px)",
-  right: "0",
-  width: "250px",
-  backgroundColor: "rgba(255, 255, 255, 0.9)", // Dropdown ให้ทึบกว่านิดนึงเพื่อให้ลอยเด่นขึ้นมา
-  backdropFilter: "blur(20px)",
-  borderRadius: "24px",
-  boxShadow: "0 20px 40px rgba(15, 23, 42, 0.1)",
-  padding: "12px",
-  border: "1px solid rgba(255, 255, 255, 0.5)",
-};
-
-const dropdownHeaderStyle = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "15px 10px",
-};
-
-const dropdownItemStyle = {
-  padding: "12px 16px",
-  textDecoration: "none",
-  color: "#475569",
-  fontSize: "0.95rem",
-  fontWeight: "500",
-  borderRadius: "16px",
-  display: "flex",
-  alignItems: "center",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-};
-
-const dropdownDividerStyle = {
-  border: "none",
-  borderTop: "1px solid rgba(226, 232, 240, 0.6)",
-  margin: "8px 0",
-};
+// --- Styles (คงเดิม) ---
+const wrapperStyle = { position: "fixed", top: "20px", left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 1000, padding: "0 20px" };
+const navContainerStyle = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2px 25px", backgroundColor: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(12px)", borderRadius: "60px", border: "1px solid rgba(109, 40, 217, 0.15)", boxShadow: "0 12px 40px rgba(0, 0, 0, 0.06)", width: "100%", maxWidth: "1100px" };
+const logoImgStyle = { height: "75px", width: "auto", cursor: "pointer" };
+const navButtonStyle = { textDecoration: "none", color: "#4B5563", fontSize: "0.9rem", fontWeight: "600", padding: "10px 18px", borderRadius: "25px" };
+const dividerVerticalStyle = { height: "24px", width: "1px", backgroundColor: "#E5E7EB", margin: "0 5px" };
+const profileTriggerStyle = { display: "flex", alignItems: "center", gap: "10px", padding: "6px 14px", borderRadius: "35px", cursor: "pointer", border: "1px solid #E5E7EB", transition: "0.2s" };
+const avatarStyle = { width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", border: "2px solid #6D28D9" };
+const avatarLargeStyle = { width: "55px", height: "55px", borderRadius: "50%", objectFit: "cover", border: "2px solid #6D28D9" };
+const loginLinkStyle = { textDecoration: "none", color: "#4B5563", fontSize: "0.95rem", fontWeight: "700", padding: "12px 28px", display: "flex", alignItems: "center" };
+const signupBtnStyle = { color: "white", backgroundColor: "#6D28D9", padding: "12px 28px", borderRadius: "35px", textDecoration: "none", fontSize: "0.95rem", fontWeight: "700", boxShadow: "0 4px 15px rgba(109, 40, 217, 0.2)" };
+const dropdownMenuStyle = { position: "absolute", top: "75px", right: "0", width: "230px", backgroundColor: "white", borderRadius: "24px", boxShadow: "0 20px 50px rgba(0,0,0,0.12)", padding: "12px", border: "1px solid #F1F5F9" };
+const dropdownHeaderStyle = { display: "flex", flexDirection: "column", alignItems: "center", padding: "15px 0" };
+const dropdownItemStyle = { padding: "12px", textDecoration: "none", color: "#475569", fontSize: "0.9rem", fontWeight: "600", borderRadius: "14px", textAlign: "center", display: "block", cursor: "pointer", transition: "0.2s" };
+const dropdownDividerStyle = { border: "none", borderTop: "1px solid #F1F5F9", margin: "8px 0" };
